@@ -13,12 +13,15 @@ buildNpmPackage rec {
   version = "1.16.0";
 
   src = fetchFromGitHub {
-    owner = "qvalentin";
+    owner = "spliit-app";
     repo = "spliit";
-    rev = "7e2d104ac549ff31c40661f6a9c1fae81e3158c0";
-    # tag = version;
-    hash = "sha256-H+bHW2TtefHONBfVqnov8n4yq+aYdan/wo+4pOlR/5o=";
+    tag = "1.16.0";
+    hash = "sha256-vYNs8dYXZTWHySB3aaUcvXpoVIm7usNq7wb7WNrf+D4=";
   };
+
+  patches = [
+    ./spliit-prisma.patch
+  ];
 
   preBuild = ''
     prisma generate
