@@ -5,18 +5,17 @@
 }:
 mkYaziPlugin {
   pname = "chmod.yazi";
-  version = "25.2.26-unstable-2025-03-02";
+  version = "25.5.31-unstable-2025-11-25";
 
   src = fetchFromGitHub {
     owner = "yazi-rs";
     repo = "plugins";
-    rev = "b44c245500b34e713732a9130bf436b13b4777e9";
-    hash = "sha256-nZ8yfnKvNLM5aA+mmQ3PkfM5lwSKwWnkQewcg9GwseI=";
+    rev = "eaf6920b7439fa7164a1c162a249c3c76dc0acd9";
+    hash = "sha256-B6zhZfp3SEaiviIzosI2aD8fk+hQF0epOTKi1qm8V3E=";
   };
 
   meta = {
     description = "Execute chmod on the selected files to change their mode";
-    homepage = "https://yazi-rs.github.io";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ khaneliman ];
   };

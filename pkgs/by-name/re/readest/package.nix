@@ -15,17 +15,18 @@
   nix-update-script,
   moreutils,
   jq,
+  gst_all_1,
 }:
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "readest";
-  version = "0.9.32";
+  version = "0.9.94";
 
   src = fetchFromGitHub {
     owner = "readest";
     repo = "readest";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-EdEjRKBrWGIwJbmNLDvJl/1Hq+Cs6w815ND6yH3/+TI=";
+    hash = "sha256-yDMVkcypw+7zoVAUeVL23agNr8rG3gvNJFbVJW/VNKY=";
     fetchSubmodules = true;
   };
 
@@ -38,28 +39,26 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   pnpmDeps = pnpm_9.fetchDeps {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-6JFBw/jktEQBXum7Cb4TrntbrnVQM36jE6sby2bmIlw=";
+    fetcherVersion = 1;
+    hash = "sha256-Q+kGrf24zKeLyM4JhSXXKtKRGQbwwiHm+aUuHHSyN/U=";
   };
 
   pnpmRoot = "../..";
 
-  useFetchCargoVendor = true;
-
-  cargoHash = "sha256-2XYfcYjrg7RUXuI0B4i9DVNr0i0bYNYHj1peAi77QaE=";
+  cargoHash = "sha256-PbWjDvxbbiiKy1UeJx7cUawGampbL5t/Bhb13tirhGc=";
 
   cargoRoot = "../..";
 
   buildAndTestSubdir = "src-tauri";
 
   postPatch = ''
-    substituteInPlace src-tauri/Cargo.toml \
-      --replace-fail '"devtools"' '"devtools", "rustls-tls"'
     substituteInPlace src-tauri/tauri.conf.json \
       --replace-fail '"createUpdaterArtifacts": true' '"createUpdaterArtifacts": false' \
       --replace-fail '"Readest"' '"readest"'
     jq 'del(.plugins."deep-link")' src-tauri/tauri.conf.json | sponge src-tauri/tauri.conf.json
     substituteInPlace src/services/constants.ts \
-      --replace-fail "autoCheckUpdates: true" "autoCheckUpdates: false"
+      --replace-fail "autoCheckUpdates: true" "autoCheckUpdates: false" \
+      --replace-fail "telemetryEnabled: true" "telemetryEnabled: false"
   '';
 
   nativeBuildInputs = [
@@ -78,10 +77,16 @@ rustPlatform.buildRustPackage (finalAttrs: {
     gtk3
     librsvg
     openssl
+    # TTS
+    gst_all_1.gstreamer
+    gst_all_1.gst-plugins-base
+    gst_all_1.gst-plugins-good
+    gst_all_1.gst-plugins-bad
   ];
 
   preBuild = ''
-    pnpm setup-pdfjs
+    # set up pdfjs and simplecc
+    pnpm setup-vendors
   '';
 
   preFixup = ''

@@ -5,34 +5,35 @@
   nixosTests,
   nix-update-script,
 }:
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "mimir";
-  version = "2.16.0";
+  version = "3.0.1";
 
   src = fetchFromGitHub {
-    rev = "${pname}-${version}";
+    rev = "mimir-${finalAttrs.version}";
     owner = "grafana";
-    repo = pname;
-    hash = "sha256-75KHS+jIPEvcB7SHBBcBi5uycwY7XR4RNc1khNYVZFE=";
+    repo = "mimir";
+    hash = "sha256-tYGzU/sn6KLLetDmAyph5u8bCocmfF4ZysTkOCSVf+U=";
   };
 
   vendorHash = null;
 
-  subPackages =
-    [
-      "cmd/mimir"
-      "cmd/mimirtool"
-    ]
-    ++ (map (pathName: "tools/${pathName}") [
-      "compaction-planner"
-      "copyblocks"
-      "copyprefix"
-      "delete-objects"
-      "list-deduplicated-blocks"
-      "listblocks"
-      "markblocks"
-      "undelete-blocks"
-    ]);
+  subPackages = [
+    "cmd/mimir"
+    "cmd/mimirtool"
+  ]
+  ++ (map (pathName: "tools/${pathName}") [
+    "compaction-planner"
+    "copyblocks"
+    "copyprefix"
+    "delete-objects"
+    "list-deduplicated-blocks"
+    "listblocks"
+    "mark-blocks"
+    "splitblocks"
+    "tenant-injector"
+    "undelete-blocks"
+  ]);
 
   passthru = {
     updateScript = nix-update-script {
@@ -51,10 +52,9 @@ buildGoModule rec {
       t = "github.com/grafana/mimir/pkg/util/version";
     in
     [
-      ''-extldflags "-static"''
       "-s"
       "-w"
-      "-X ${t}.Version=${version}"
+      "-X ${t}.Version=${finalAttrs.version}"
       "-X ${t}.Revision=unknown"
       "-X ${t}.Branch=unknown"
     ];
@@ -62,6 +62,7 @@ buildGoModule rec {
   meta = with lib; {
     description = "Grafana Mimir provides horizontally scalable, highly available, multi-tenant, long-term storage for Prometheus. ";
     homepage = "https://github.com/grafana/mimir";
+    changelog = "https://github.com/grafana/mimir/releases/tag/mimir-${finalAttrs.version}";
     license = licenses.agpl3Only;
     maintainers = with maintainers; [
       happysalada
@@ -69,4 +70,4 @@ buildGoModule rec {
       adamcstephens
     ];
   };
-}
+})

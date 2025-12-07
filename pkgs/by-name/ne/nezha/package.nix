@@ -1,6 +1,6 @@
 {
   lib,
-  buildGo124Module,
+  buildGoModule,
   fetchFromGitHub,
   go-swag,
   versionCheckHook,
@@ -14,7 +14,7 @@
 
 let
   pname = "nezha";
-  version = "1.10.8";
+  version = "1.14.9";
 
   frontendName = lib.removePrefix "nezha-theme-";
 
@@ -51,33 +51,32 @@ let
       ++ map mkTemplate withThemes
     );
 in
-buildGo124Module {
+buildGoModule {
   inherit pname version;
 
   src = fetchFromGitHub {
     owner = "nezhahq";
     repo = "nezha";
     tag = "v${version}";
-    hash = "sha256-uYZclZPvjiOpCVpxkyU6BjdxBmdryBzoGkTctsRuapY=";
+    hash = "sha256-q4LxqoelZ0Haz8rArINOPvopQQKGnkqIMZ2INo/2C3c=";
   };
 
   proxyVendor = true;
 
-  prePatch =
-    ''
-      rm -rf cmd/dashboard/*-dist
+  prePatch = ''
+    rm -rf cmd/dashboard/*-dist
 
-      cp ${frontend-templates} service/singleton/frontend-templates.yaml
-    ''
-    + lib.concatStringsSep "\n" (
-      map (theme: "cp -r ${theme} cmd/dashboard/${frontendName theme.pname}-dist") (
-        [
-          nezha-theme-admin
-          nezha-theme-user
-        ]
-        ++ withThemes
-      )
-    );
+    cp ${frontend-templates} service/singleton/frontend-templates.yaml
+  ''
+  + lib.concatStringsSep "\n" (
+    map (theme: "cp -r ${theme} cmd/dashboard/${frontendName theme.pname}-dist") (
+      [
+        nezha-theme-admin
+        nezha-theme-user
+      ]
+      ++ withThemes
+    )
+  );
 
   patches = [
     # Nezha originally used ipinfo.mmdb to provide geoip query feature.
@@ -97,7 +96,7 @@ buildGo124Module {
     GOROOT=''${GOROOT-$(go env GOROOT)} swag init --pd -d . -g ./cmd/dashboard/main.go -o ./cmd/dashboard/docs --parseGoList=false
   '';
 
-  vendorHash = "sha256-ftVcbO1QYIEYUwPqxAHE/7TNBwzgN5BNyu5+rTnOgIs=";
+  vendorHash = "sha256-Q+ur9hIG0xVJHdi79K5e4sV8xuR45qp195ptEDbHAvc=";
 
   ldflags = [
     "-s"

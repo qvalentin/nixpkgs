@@ -7,16 +7,16 @@
 
 buildGoModule rec {
   pname = "gh-skyline";
-  version = "0.1.4";
+  version = "0.1.7";
 
   src = fetchFromGitHub {
     owner = "github";
     repo = "gh-skyline";
     tag = "v${version}";
-    hash = "sha256-2i1f3iOrabTc+r5iUzghF3sJ7vgpTC1dmzY/z6h/oCg=";
+    hash = "sha256-yc9NaWx1jV2YUpPz2u9irikkLw1cnManq+AXREvCfII=";
   };
 
-  vendorHash = "sha256-g4YqNts50RUBh1Gu9vSI29uvk0iHSnMgI1+KBFm5rNI=";
+  vendorHash = "sha256-fPXpgiCA9k8tYQ2leCb+XR34OGJZ6YWCFAxG9mTeXoI=";
 
   ldflags = [
     "-s"

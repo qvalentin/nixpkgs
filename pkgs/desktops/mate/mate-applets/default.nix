@@ -28,6 +28,10 @@
 stdenv.mkDerivation rec {
   pname = "mate-applets";
   version = "1.28.1";
+  outputs = [
+    "out"
+    "man"
+  ];
 
   src = fetchurl {
     url = "https://pub.mate-desktop.org/releases/${lib.versions.majorMinor version}/${pname}-${version}.tar.xz";
@@ -79,6 +83,6 @@ stdenv.mkDerivation rec {
       lgpl2Plus
     ];
     platforms = platforms.linux;
-    maintainers = teams.mate.members;
+    teams = [ teams.mate ];
   };
 }

@@ -44,7 +44,8 @@ stdenv.mkDerivation rec {
     alsa-lib
     freetype
     libglvnd
-  ] ++ runtimeDependencies;
+  ]
+  ++ runtimeDependencies;
 
   runtimeDependencies = map lib.getLib [
     curl
@@ -68,9 +69,7 @@ stdenv.mkDerivation rec {
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
     license = licenses.unfree;
     maintainers = with maintainers; [
-      dan4ik605743
       husjon
-      orivej
     ];
     platforms = [ "x86_64-linux" ];
     mainProgram = "ToneLib-GFX";

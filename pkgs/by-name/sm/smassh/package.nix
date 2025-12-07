@@ -2,23 +2,20 @@
   lib,
   fetchFromGitHub,
   smassh,
-  python311,
+  python3,
   testers,
 }:
 
-let
-  python3 = python311;
-in
 python3.pkgs.buildPythonApplication rec {
   pname = "smassh";
-  version = "3.1.6";
+  version = "3.1.7";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "kraanzu";
     repo = "smassh";
     rev = "v${version}";
-    hash = "sha256-P0fZHSsaKIwJspEBxM5MEK3Z4kemXJWlIOQI9cmvlF4=";
+    hash = "sha256-i04DzsurF6sMMBHZjBOrkKKmkn6Nt6uF27QXABE3igg=";
   };
 
   nativeBuildInputs = with python3.pkgs; [ poetry-core ];

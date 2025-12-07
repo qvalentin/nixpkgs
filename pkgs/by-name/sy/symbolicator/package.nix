@@ -6,40 +6,32 @@
   bzip2,
   openssl,
   zstd,
-  stdenv,
-  darwin,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "symbolicator";
-  version = "25.3.0";
+  version = "25.10.0";
 
   src = fetchFromGitHub {
     owner = "getsentry";
     repo = "symbolicator";
     rev = version;
-    hash = "sha256-/8Jo/M51ulrQFzXKkcFXTYfh9a3w6C5oW6A/bDFcRp0=";
+    hash = "sha256-bXoLhQVOzCic/n6/YlmFEpvN1lBD9sFDKzwi7VxW8iM=";
     fetchSubmodules = true;
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-mWvCvzqTUzpxYYxf8KWjxfo4E7oS9oNVbeVxx8J3QwI=";
+  cargoHash = "sha256-r7HtHvizA/NoJI496db5ahQ/6Qwp+KwQRmYQ7S72cqQ=";
 
   nativeBuildInputs = [
     pkg-config
     rustPlatform.bindgenHook
   ];
 
-  buildInputs =
-    [
-      bzip2
-      openssl
-      zstd
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      darwin.apple_sdk.frameworks.Security
-      darwin.apple_sdk.frameworks.SystemConfiguration
-    ];
+  buildInputs = [
+    bzip2
+    openssl
+    zstd
+  ];
 
   env = {
     SYMBOLICATOR_GIT_VERSION = src.rev;
@@ -55,7 +47,7 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://getsentry.github.io/symbolicator/";
     changelog = "https://github.com/getsentry/symbolicator/blob/${src.rev}/CHANGELOG.md";
     license = licenses.mit;
-    maintainers = with maintainers; [ figsoda ];
+    maintainers = [ ];
     mainProgram = "symbolicator";
   };
 }

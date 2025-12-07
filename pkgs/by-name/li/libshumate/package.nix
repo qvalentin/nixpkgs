@@ -23,7 +23,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "libshumate";
-  version = "1.3.2";
+  version = "1.5.1";
 
   outputs = [
     "out"
@@ -34,7 +34,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = fetchurl {
     url = "mirror://gnome/sources/libshumate/${lib.versions.majorMinor finalAttrs.version}/libshumate-${finalAttrs.version}.tar.xz";
-    hash = "sha256-+HYrvG4pbXi+H4Qi9W2kxAvI0Sr8cAKjJBcqkZju7Vw=";
+    hash = "sha256-2q34twATQ4jH6TPgtiNYaqp/L76LOmJZOHUTMDuYduY=";
   };
 
   depsBuildBuild = [
@@ -100,7 +100,7 @@ stdenv.mkDerivation (finalAttrs: {
     mainProgram = "shumate-demo";
     homepage = "https://gitlab.gnome.org/GNOME/libshumate";
     license = licenses.lgpl21Plus;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
     platforms = platforms.unix;
   };
 })

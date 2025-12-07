@@ -21,7 +21,7 @@ let
       ...
     }@attrs:
     let
-      attrs' = builtins.removeAttrs attrs [
+      attrs' = removeAttrs attrs [
         "version"
         "hash"
         "vendorHash"
@@ -75,12 +75,12 @@ let
 
         subPackages = [ "." ];
 
-        meta = with lib; {
+        meta = {
           description = "Tool for building, changing, and versioning infrastructure";
           homepage = "https://www.terraform.io/";
           changelog = "https://github.com/hashicorp/terraform/blob/v${version}/CHANGELOG.md";
-          license = licenses.bsl11;
-          maintainers = with maintainers; [
+          license = lib.licenses.bsl11;
+          maintainers = with lib.maintainers; [
             Chili-Man
             kalbasit
             timstott
@@ -194,9 +194,9 @@ rec {
   mkTerraform = attrs: pluggable (generic attrs);
 
   terraform_1 = mkTerraform {
-    version = "1.11.4";
-    hash = "sha256-VGptJz+MbJ8nJRGUW9LzX6IDLYbjI5tK40ZhkZCGVf0=";
-    vendorHash = "sha256-pDtWGDKEnYq4wJYG+Rr5C1pWN/X92P+wvHrNm0Ldh+8=";
+    version = "1.14.1";
+    hash = "sha256-qqIoVAzVpsdGNbA04jpsiN1HR94xhcfDJvz8UyEweyw=";
+    vendorHash = "sha256-+mWMU3FWF/VTyPMnOj9AGy1kfvv2W4UB9EDZI7bqSh0=";
     patches = [ ./provider-path-0_15.patch ];
     passthru = {
       inherit plugins;
@@ -213,7 +213,7 @@ rec {
       mainTf = writeText "main.tf" ''
         resource "random_id" "test" {}
       '';
-      terraform = terraform_1.withPlugins (p: [ p.random ]);
+      terraform = terraform_1.withPlugins (p: [ p.hashicorp_random ]);
       test = runCommand "terraform-plugin-test" { buildInputs = [ terraform ]; } ''
         set -e
         # make it fail outside of sandbox

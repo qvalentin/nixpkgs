@@ -6,7 +6,6 @@
   fetchFromGitHub,
   lz4,
   python-lzo,
-  pythonOlder,
   setuptools,
   setuptools-scm,
   zstandard,
@@ -14,16 +13,14 @@
 
 buildPythonPackage rec {
   pname = "dissect-squashfs";
-  version = "1.9";
+  version = "1.11";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "fox-it";
     repo = "dissect.squashfs";
     tag = version;
-    hash = "sha256-8u+pWUTUr4Warhb28XTxVU/jzOkXW+O6V8gDoAAlAbc=";
+    hash = "sha256-glmrsbNkhgYBhcL+qgEnBfJnGL4ViHH1L5HN9rGlUNM=";
   };
 
   build-system = [

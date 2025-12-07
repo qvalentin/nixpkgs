@@ -50,11 +50,11 @@
 
 stdenv.mkDerivation rec {
   pname = "gnome-boxes";
-  version = "47.0";
+  version = "49.1";
 
   src = fetchurl {
     url = "mirror://gnome/sources/gnome-boxes/${lib.versions.major version}/gnome-boxes-${version}.tar.xz";
-    hash = "sha256-Zb9sLeG/TVFpXJGSxbHmKFyzLJihiqlIo3bqMgOLx48=";
+    hash = "sha256-VUeIAd3Qg4IL0yMZKoN04E879CoOcSYy0F5olVMORMo=";
   };
 
   patches = [
@@ -137,6 +137,6 @@ stdenv.mkDerivation rec {
     homepage = "https://apps.gnome.org/Boxes/";
     license = licenses.lgpl2Plus;
     platforms = platforms.linux;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
   };
 }

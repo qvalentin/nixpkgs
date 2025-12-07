@@ -2,6 +2,7 @@
   lib,
   stdenv,
   callPackage,
+  darwin,
   ecl,
   coreutils,
   fetchurl,
@@ -9,6 +10,7 @@
   strace,
   texinfo,
   which,
+  writableTmpDirAsHomeHook,
   writeText,
   zstd,
   version,
@@ -23,21 +25,13 @@
 let
   versionMap = {
     # Necessary for Nyxt
-    "2.4.6" = {
-      sha256 = "sha256-pImQeELa4JoXJtYphb96VmcKrqLz7KH7cCO8pnw/MJE=";
-    };
+    "2.4.6".sha256 = "sha256-pImQeELa4JoXJtYphb96VmcKrqLz7KH7cCO8pnw/MJE=";
     # Necessary for stumpwm
-    "2.4.10" = {
-      sha256 = "sha256-zus5a2nSkT7uBIQcKva+ylw0LOFGTD/j5FPy3hDF4vg=";
-    };
+    "2.4.10".sha256 = "sha256-zus5a2nSkT7uBIQcKva+ylw0LOFGTD/j5FPy3hDF4vg=";
     # By unofficial and very loose convention we keep the latest version of
     # SBCL, and the previous one in case someone quickly needs to roll back.
-    "2.5.1" = {
-      sha256 = "sha256-QTOzbNFtFNYzlpw3/VHCyJqOpdbhYRVSgZ2R9xshn4s=";
-    };
-    "2.5.2" = {
-      sha256 = "sha256-XcJ+un3aQz31P9dEHeixFHSoLNrBaJwfbOVfoGXWX6w=";
-    };
+    "2.5.9".sha256 = "sha256-0bGQItQ9xJPtyXK25ZyTrmaEyWP90rQTsJZeGM1r0eI=";
+    "2.5.10".sha256 = "sha256-v1+0nypC82s+AD0uTSNDhq3fB9ndjKhjRlaSfMls4SU=";
   };
   # Collection of pre-built SBCL binaries for platforms that need them for
   # bootstrapping. Ideally these are to be avoided.  If ECL (or any other
@@ -76,6 +70,7 @@ let
       "${sbclBootstrap}/bin/sbcl --disable-debugger --no-userinit --no-sysinit"
     else
       "${lib.getExe ecl} --norc";
+  posixUtils = if stdenv.hostPlatform.isDarwin then darwin.shell_cmds else coreutils;
 
 in
 
@@ -90,21 +85,21 @@ stdenv.mkDerivation (self: {
     inherit (versionMap.${version}) sha256;
   };
 
-  nativeBuildInputs =
+  nativeBuildInputs = [
+    texinfo
+  ]
+  ++ lib.optionals self.doCheck (
     [
-      texinfo
+      which
+      writableTmpDirAsHomeHook
     ]
-    ++ lib.optionals self.doCheck (
-      [
-        which
-      ]
-      ++ lib.optionals (builtins.elem stdenv.system strace.meta.platforms) [
-        strace
-      ]
-      ++ lib.optionals (lib.versionOlder "2.4.10" self.version) [
-        ps
-      ]
-    );
+    ++ lib.optionals (builtins.elem stdenv.system strace.meta.platforms) [
+      strace
+    ]
+    ++ lib.optionals (lib.versionOlder "2.4.10" self.version) [
+      ps
+    ]
+  );
   buildInputs = lib.optionals self.coreCompression (
     # Declare at the point of actual use in case the caller wants to override
     # buildInputs to sidestep this.
@@ -133,18 +128,20 @@ stdenv.mkDerivation (self: {
   # altogether. One by one hopefully we can fix these (on ofBorg,
   # upstream--somehow some way) in due time.
   disabledTestFiles =
-    lib.optionals
-      (builtins.elem stdenv.hostPlatform.system [
-        "x86_64-linux"
-        "aarch64-linux"
-      ])
-      [
-        "foreign-stack-alignment.impure.lisp"
-        # Floating point tests are fragile
-        # https://sourceforge.net/p/sbcl/mailman/message/58728554/
-        "compiler.pure.lisp"
-        "float.pure.lisp"
-      ]
+    lib.optionals (lib.versionOlder "2.5.2" self.version) [ "debug.impure.lisp" ]
+    ++
+      lib.optionals
+        (builtins.elem stdenv.hostPlatform.system [
+          "x86_64-linux"
+          "aarch64-linux"
+        ])
+        [
+          "foreign-stack-alignment.impure.lisp"
+          # Floating point tests are fragile
+          # https://sourceforge.net/p/sbcl/mailman/message/58728554/
+          "compiler.pure.lisp"
+          "float.pure.lisp"
+        ]
     ++ lib.optionals (stdenv.hostPlatform.system == "aarch64-linux") [
       # This is failing on aarch64-linux on ofBorg. Not on my local machine nor on
       # a VM on my laptop. Not sure what’s wrong.
@@ -152,17 +149,51 @@ stdenv.mkDerivation (self: {
       # Heisentest, sometimes fails on ofBorg, would rather just disable it than
       # have it block a release.
       "futex-wait.test.sh"
+    ]
+    ++ lib.optionals (stdenv.hostPlatform.system == "aarch64-darwin") [
+      # Fail intermittently
+      "gc.impure.lisp"
+      "threads.pure.lisp"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # This test has a gotcha on Darwin which originally showed up in
+      # 57b36ea5c83a1841b174ec6cd5e423439fe9d7a0, and later again around Oct
+      # 2025 in staging.  The test wants a clean environment (using
+      # run-program, akin to fork & execve), but darwin keeps injecting this
+      # envvar:
+      #
+      #   __CF_USER_TEXT_ENCODING=0x15F:0:0
+      #
+      # It’s not clear to maintainers where the problem lies exactly, but
+      # removing the test at least fixes the build and unblocks others.
+      #
+      # see:
+      # - https://github.com/NixOS/nixpkgs/pull/359214
+      # - https://github.com/NixOS/nixpkgs/pull/453099
+      "run-program.test.sh"
+
+      # Fails in sandbox
+      "sb-posix.impure.lisp"
     ];
-  patches = [
+
+  patches =
     # Support the NIX_SBCL_DYNAMIC_SPACE_SIZE envvar. Upstream SBCL didn’t want
     # to include this (see
     # "https://sourceforge.net/p/sbcl/mailman/sbcl-devel/thread/2cf20df7-01d0-44f2-8551-0df01fe55f1a%400brg.net/"),
     # but for Nix envvars are sufficiently useful that it’s worth maintaining
     # this functionality downstream.
-    ./dynamic-space-size-envvar-feature.patch
-    ./dynamic-space-size-envvar-tests.patch
-  ];
-  postPatch =
+    if lib.versionOlder "2.5.2" self.version then
+      [
+        ./dynamic-space-size-envvar-2.5.3-feature.patch
+        ./dynamic-space-size-envvar-2.5.3-tests.patch
+      ]
+    else
+      [
+        ./dynamic-space-size-envvar-2.5.2-feature.patch
+        ./dynamic-space-size-envvar-2.5.2-tests.patch
+      ];
+
+  sbclPatchPhase =
     lib.optionalString (self.disabledTestFiles != [ ]) ''
       (cd tests ; rm -f ${lib.concatStringsSep " " self.disabledTestFiles})
     ''
@@ -179,8 +210,8 @@ stdenv.mkDerivation (self: {
         # definitely NOT be patched this way, hence just a single * (and no
         # globstar).
         substituteInPlace ${if self.purgeNixReferences then "tests" else "{tests,src/code}"}/*.{lisp,sh} \
-          --replace-quiet /usr/bin/env "${coreutils}/bin/env" \
-          --replace-quiet /bin/uname "${coreutils}/bin/uname" \
+          --replace-quiet /usr/bin/env "${posixUtils}/bin/env" \
+          --replace-quiet /bin/uname "${posixUtils}/bin/uname" \
           --replace-quiet /bin/sh "${stdenv.shell}"
       )
       # Official source release tarballs will have a version.lispexpr, but if you
@@ -191,11 +222,7 @@ stdenv.mkDerivation (self: {
       fi
     '';
 
-  preBuild = ''
-    export INSTALL_ROOT=$out
-    mkdir -p test-home
-    export HOME=$PWD/test-home
-  '';
+  preConfigurePhases = "sbclPatchPhase";
 
   enableFeatures =
     assert lib.assertMsg (
@@ -215,23 +242,28 @@ stdenv.mkDerivation (self: {
       "compact-instance-header"
     ];
 
-  buildArgs =
-    [
-      "--prefix=$out"
-      "--xc-host=${lib.escapeShellArg bootstrapLisp'}"
-    ]
-    ++ builtins.map (x: "--with-${x}") self.enableFeatures
-    ++ builtins.map (x: "--without-${x}") self.disableFeatures
-    ++ lib.optionals (stdenv.hostPlatform.system == "aarch64-darwin") [
-      "--arch=arm64"
-    ];
+  buildArgs = [
+    "--prefix=$out"
+    "--xc-host=${lib.escapeShellArg bootstrapLisp'}"
+  ]
+  ++ map (x: "--with-${x}") self.enableFeatures
+  ++ map (x: "--without-${x}") self.disableFeatures
+  ++ lib.optionals (stdenv.hostPlatform.system == "aarch64-darwin") [
+    "--arch=arm64"
+  ];
 
   # Fails to find `O_LARGEFILE` otherwise.
   env.NIX_CFLAGS_COMPILE = "-D_GNU_SOURCE";
 
+  # Set minimum macOS version to 10.12 for x86_64-darwin to support clock_gettime()
+  env.SBCL_MACOSX_VERSION_MIN = lib.optionalString (
+    stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isx86_64
+  ) "10.12";
+
   buildPhase = ''
     runHook preBuild
 
+    export INSTALL_ROOT=$out
     sh make.sh ${lib.concatStringsSep " " self.buildArgs}
     (cd doc/manual ; make info)
 
@@ -253,25 +285,24 @@ stdenv.mkDerivation (self: {
     runHook postCheck
   '';
 
-  installPhase =
-    ''
-      runHook preInstall
+  installPhase = ''
+    runHook preInstall
 
-      INSTALL_ROOT=$out sh install.sh
+    sh install.sh
 
-    ''
-    + lib.optionalString (!self.purgeNixReferences) ''
-      cp -r src $out/lib/sbcl
-      cp -r contrib $out/lib/sbcl
-      cat >$out/lib/sbcl/sbclrc <<EOF
-       (setf (logical-pathname-translations "SYS")
-         '(("SYS:SRC;**;*.*.*" #P"$out/lib/sbcl/src/**/*.*")
-           ("SYS:CONTRIB;**;*.*.*" #P"$out/lib/sbcl/contrib/**/*.*")))
-      EOF
-    ''
-    + ''
-      runHook postInstall
-    '';
+  ''
+  + lib.optionalString (!self.purgeNixReferences) ''
+    cp -r src $out/lib/sbcl
+    cp -r contrib $out/lib/sbcl
+    cat >$out/lib/sbcl/sbclrc <<EOF
+     (setf (logical-pathname-translations "SYS")
+       '(("SYS:SRC;**;*.*.*" #P"$out/lib/sbcl/src/**/*.*")
+         ("SYS:CONTRIB;**;*.*.*" #P"$out/lib/sbcl/contrib/**/*.*")))
+    EOF
+  ''
+  + ''
+    runHook postInstall
+  '';
 
   setupHook = lib.optional self.purgeNixReferences (
     writeText "setupHook.sh" ''
@@ -282,12 +313,14 @@ stdenv.mkDerivation (self: {
     ''
   );
 
+  __darwinAllowLocalNetworking = true;
+
   meta = with lib; {
     description = "Common Lisp compiler";
     homepage = "https://sbcl.org";
     license = licenses.publicDomain; # and FreeBSD
     mainProgram = "sbcl";
-    maintainers = lib.teams.lisp.members;
+    teams = [ lib.teams.lisp ];
     platforms = attrNames bootstrapBinaries ++ [
       # These aren’t bootstrapped using the binary distribution but compiled
       # using a separate (lisp) host

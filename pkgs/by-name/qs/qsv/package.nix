@@ -1,58 +1,65 @@
 {
+  stdenv,
   fetchFromGitHub,
   file,
   lib,
   pkg-config,
   rustPlatform,
   sqlite,
-  stdenv,
   zstd,
+  cmake,
+  python3,
+  wayland,
+  withPolars ? true,
+  withPython ? stdenv.buildPlatform == stdenv.hostPlatform,
+  withUi ? true,
+  buildFeatures ?
+    # enable all features except self_update by default
+    # https://github.com/dathere/qsv/blob/10.0.0/Cargo.toml#L370
+    [
+      "apply"
+      "feature_capable"
+      "fetch"
+      "foreach"
+      "geocode"
+      "luau"
+      "to"
+    ]
+    ++ lib.optional withPolars "polars"
+    ++ lib.optional withPython "python"
+    ++ lib.optional withUi "ui",
+  mainProgram ? "qsv",
 }:
 
 let
   pname = "qsv";
-  version = "2.2.1";
+  version = "10.0.0";
 in
 rustPlatform.buildRustPackage {
-  inherit pname version;
+  inherit pname version buildFeatures;
 
   src = fetchFromGitHub {
     owner = "dathere";
     repo = "qsv";
     rev = version;
-    hash = "sha256-LE3iQCZb3FKSsrb8/E5awjh26wGv9FlXw63+rNyzIIk=";
+    hash = "sha256-Jo2pC+zs3wQAaeQzg6MLySVtI0bB7hLczT62Xpb4L14=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-Nse3IrhXKdEJ3BMWq8LEdd6EvhSEtzx1RbHQT9AoEb8=";
+  cargoHash = "sha256-05jJslguUFLZtugozv/jn7CDie47WnvrFnjC3SUYxxo=";
 
   buildInputs = [
     file
     sqlite
     zstd
-  ];
+  ]
+  ++ lib.optional (lib.elem "ui" buildFeatures && stdenv.hostPlatform.isLinux) wayland;
 
   nativeBuildInputs = [
     pkg-config
     rustPlatform.bindgenHook
-  ];
-
-  buildFeatures = [
-    "apply"
-    "feature_capable"
-    "fetch"
-    "foreach"
-    "geocode"
-    "to"
-  ];
-
-  checkFeatures = [
-    "apply"
-    "feature_capable"
-    "fetch"
-    "foreach"
-    "geocode"
-  ];
+    cmake
+  ]
+  ++ lib.optional (lib.elem "python" buildFeatures) python3;
 
   doCheck = false;
 
@@ -69,9 +76,10 @@ rustPlatform.buildRustPackage {
       # or
       unlicense
     ];
+    inherit mainProgram;
     maintainers = with lib.maintainers; [
       detroyejr
-      uncenter
+      misuzu
     ];
   };
 }

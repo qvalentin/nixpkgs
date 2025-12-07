@@ -7,14 +7,14 @@
 
 python3Packages.buildPythonApplication rec {
   pname = "garmindb";
-  version = "3.6.3";
+  version = "3.6.5";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "tcgoetz";
     repo = "garmindb";
     tag = "v${version}";
-    hash = "sha256-JAUDAYf9CH/BxwV88ziF5Zy+3ibcbieEfHrZpHSU8m0=";
+    hash = "sha256-uXRFvItaO4ptvxzvqN8bOzTUWcVeGk0IX82z+yLWFDw=";
   };
 
   pythonRelaxDeps = [
@@ -71,7 +71,10 @@ python3Packages.buildPythonApplication rec {
     changelog = "https://github.com/tcgoetz/GarminDB/releases/tag/${src.tag}";
     license = lib.licenses.gpl2Only;
     platforms = lib.platforms.unix;
-    maintainers = with lib.maintainers; [ ethancedwards8 ];
+    maintainers = with lib.maintainers; [
+      ethancedwards8
+      matthiasbeyer
+    ];
     mainProgram = "garmindb";
   };
 }

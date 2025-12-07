@@ -11,14 +11,14 @@
 
 buildPythonPackage rec {
   pname = "aiohttp-fast-zlib";
-  version = "0.2.3";
+  version = "0.3.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "bdraco";
     repo = "aiohttp-fast-zlib";
     tag = "v${version}";
-    hash = "sha256-PQ44XFdaolxGQTwzssv1inOUAGAyYghS3SVLq4w5SoA=";
+    hash = "sha256-N38eMxxovpBM3n0cb7glKyBQ9GD79uyFxq5L4pKv248=";
   };
 
   postPatch = ''
@@ -34,7 +34,7 @@ buildPythonPackage rec {
     zlib_ng = [ zlib-ng ];
   };
 
-  nativeCheckInputs = [ pytestCheckHook ] ++ lib.flatten (lib.attrValues optional-dependencies);
+  nativeCheckInputs = [ pytestCheckHook ] ++ lib.concatAttrValues optional-dependencies;
 
   pythonImportsCheck = [ "aiohttp_fast_zlib" ];
 

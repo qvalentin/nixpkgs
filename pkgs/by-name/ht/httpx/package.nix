@@ -7,16 +7,16 @@
 
 buildGoModule rec {
   pname = "httpx";
-  version = "1.6.10";
+  version = "1.7.2";
 
   src = fetchFromGitHub {
     owner = "projectdiscovery";
     repo = "httpx";
     tag = "v${version}";
-    hash = "sha256-lU5LtYFnWJu4yZTqdJFqLnaAUOQ3Nc2EaNPrvTxoW3Q=";
+    hash = "sha256-UZybzKPBattd2WIkATJEywPiRJ1v6B20it5Jqnle7Xo=";
   };
 
-  vendorHash = "sha256-+m0TPKIBCnRfswrMw9+w1r/pWaRmkI+s0RRbv5X5GBo=";
+  vendorHash = "sha256-T9nq2Ad2UhndOC5KUZ+ix4PzmzKD1la2zmo5L6vq2Yk=";
 
   subPackages = [ "cmd/httpx" ];
 
@@ -34,7 +34,7 @@ buildGoModule rec {
 
   versionCheckProgramArg = "-version";
 
-  meta = with lib; {
+  meta = {
     description = "Fast and multi-purpose HTTP toolkit";
     longDescription = ''
       httpx is a fast and multi-purpose HTTP toolkit allow to run multiple
@@ -43,8 +43,8 @@ buildGoModule rec {
     '';
     homepage = "https://github.com/projectdiscovery/httpx";
     changelog = "https://github.com/projectdiscovery/httpx/releases/tag/v${version}";
-    license = licenses.mit;
-    maintainers = with maintainers; [ fab ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ fab ];
     mainProgram = "httpx";
   };
 }

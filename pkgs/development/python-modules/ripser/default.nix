@@ -20,14 +20,14 @@
 
 buildPythonPackage rec {
   pname = "ripser";
-  version = "0.6.12";
+  version = "0.6.13";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "scikit-tda";
     repo = "ripser.py";
     tag = "v${version}";
-    hash = "sha256-AviAcpaK0UWqa6spba9bLmBQnprINCrZC/wuRLqiXVA=";
+    hash = "sha256-m6EJrz0RBuKlzDX41Gm/W2k71YQK9CgfZN4o84cQYCs=";
   };
 
   build-system = [
@@ -74,6 +74,10 @@ buildPythonPackage rec {
     "test_thresh"
     # assert(np.allclose(r1, r2))
     "test_zero_edge_bug"
+    # assert (0, 2) == (1, 2)
+    "test_verbose_true"
+    # assert (0, 2) == (1, 2)
+    "test_verbose_false"
   ];
 
   meta = {

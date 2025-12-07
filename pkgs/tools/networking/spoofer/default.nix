@@ -30,7 +30,8 @@ stdenv.mkDerivation rec {
     protobuf
     libpcap
     traceroute
-  ] ++ optional withGUI qt5.qtbase;
+  ]
+  ++ optional withGUI qt5.qtbase;
 
   dontWrapQtApps = true;
 
@@ -53,7 +54,6 @@ stdenv.mkDerivation rec {
     '';
     platforms = platforms.all;
     license = licenses.gpl3Plus;
-    maintainers = with lib.maintainers; [ leenaars ];
     mainProgram = "spoofer-prober";
   };
 }

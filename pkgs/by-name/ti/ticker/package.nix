@@ -8,21 +8,21 @@
 
 buildGoModule rec {
   pname = "ticker";
-  version = "4.8.1";
+  version = "5.1.0";
 
   src = fetchFromGitHub {
     owner = "achannarasappa";
-    repo = pname;
+    repo = "ticker";
     tag = "v${version}";
-    hash = "sha256-2qg7/gzogvK8eIj9NzFELoeXrtJGC5pS4LvR2msOuHY=";
+    hash = "sha256-/W/BZzrIkz/3F2jzQGJ79UycrdEBVTMF+YncCS5TibE=";
   };
 
-  vendorHash = "sha256-o3hVRHyrJpmYgephoZ2JlVLGSqZtRQAp48OzoIMY3do=";
+  vendorHash = "sha256-EKc9QRDSOD4WetCXORjMUlaFqh0+B3Aa3m5SR1WiKN4=";
 
   ldflags = [
     "-s"
     "-w"
-    "-X github.com/achannarasappa/ticker/v4/cmd.Version=${version}"
+    "-X github.com/achannarasappa/ticker/v${lib.versions.major version}/cmd.Version=${version}"
   ];
 
   # Tests require internet
@@ -34,12 +34,12 @@ buildGoModule rec {
     inherit version;
   };
 
-  meta = with lib; {
+  meta = {
     description = "Terminal stock ticker with live updates and position tracking";
     homepage = "https://github.com/achannarasappa/ticker";
     changelog = "https://github.com/achannarasappa/ticker/releases/tag/v${version}";
-    license = licenses.gpl3Plus;
-    maintainers = with maintainers; [
+    license = lib.licenses.gpl3Plus;
+    maintainers = with lib.maintainers; [
       siraben
       sarcasticadmin
     ];

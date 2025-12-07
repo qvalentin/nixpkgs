@@ -1,19 +1,18 @@
 {
+  stdenv,
   lib,
   nix-update-script,
   rustPlatform,
   fetchFromGitHub,
   installShellFiles,
-  stdenv,
   coreutils,
   bash,
   direnv,
   git,
   pkg-config,
   openssl,
+  cmake,
   cacert,
-  Security,
-  SystemConfiguration,
   usage,
   mise,
   testers,
@@ -23,29 +22,23 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "mise";
-  version = "2025.4.1";
+  version = "2025.11.11";
 
   src = fetchFromGitHub {
     owner = "jdx";
     repo = "mise";
     rev = "v${version}";
-    hash = "sha256-WEzf091KJbXTsyCNaz2QdiNklPZ3054jATGkl5Y+6lA=";
+    hash = "sha256-Qvxh3mxT6Eb2T2x83TonlmdBdmor5AqbVadUUG9p1o8=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-N04vcOJjx0GCKYXJCkQFQT4D8WWJsi62f3cdUW+4zMk=";
+  cargoHash = "sha256-G2cLBPKXkK6LcK2wGIknz9TH2RGndmc4/3oq/QKkw2c=";
 
   nativeBuildInputs = [
     installShellFiles
     pkg-config
   ];
 
-  buildInputs =
-    [ openssl ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      Security
-      SystemConfiguration
-    ];
+  buildInputs = [ openssl ];
 
   postPatch = ''
     patchShebangs --build \
@@ -68,13 +61,23 @@ rustPlatform.buildRustPackage rec {
       --replace-fail 'cmd!("direnv"' 'cmd!("${lib.getExe direnv}"'
   '';
 
-  nativeCheckInputs = [ cacert ];
+  nativeCheckInputs = [
+    cacert
+    cmake
+    rustPlatform.bindgenHook
+  ];
+
+  # disable warnings as errors for aws-lc-sys in checkPhase
+  env.NIX_CFLAGS_COMPILE = "-Wno-error";
 
   checkFlags = [
     # last_modified will always be different in nix
     "--skip=tera::tests::test_last_modified"
-    # requires https://github.com/rbenv/ruby-build
-    "--skip=plugins::core::ruby::tests::test_list_versions_matching"
+  ]
+  ++ lib.optionals (stdenv.hostPlatform.system == "x86_64-darwin") [
+    # started failing mid-April 2025
+    "--skip=task::task_file_providers::remote_task_http::tests::test_http_remote_task_get_local_path_with_cache"
+    "--skip=task::task_file_providers::remote_task_http::tests::test_http_remote_task_get_local_path_without_cache"
   ];
 
   cargoTestFlags = [ "--all-features" ];
@@ -85,13 +88,16 @@ rustPlatform.buildRustPackage rec {
     installManPage ./man/man1/mise.1
 
     substituteInPlace ./completions/{mise.bash,mise.fish,_mise}  \
-      --replace-fail '-v usage' '-v ${lib.getExe usage}' \
+      --replace-fail '-p usage' '-p ${lib.getExe usage}' \
       --replace-fail 'usage complete-word' '${lib.getExe usage} complete-word'
 
     installShellCompletion \
       --bash ./completions/mise.bash \
       --fish ./completions/mise.fish \
       --zsh ./completions/_mise
+
+    mkdir -p $out/lib/mise
+    touch $out/lib/mise/.disable-self-update
   '';
 
   passthru = {
@@ -113,10 +119,9 @@ rustPlatform.buildRustPackage rec {
           ''
             export HOME=$(mktemp -d)
 
-            spec="$(mise usage)"
             for shl in bash fish zsh; do
               echo "testing $shl"
-              usage complete-word --shell $shl --spec "$spec"
+              usage complete-word --shell $shl --file <(mise usage)
             done
 
             touch $out

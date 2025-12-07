@@ -5,18 +5,17 @@
 }:
 mkYaziPlugin {
   pname = "git.yazi";
-  version = "25.4.4-unstable-2025-04-04";
+  version = "25.5.31-unstable-2025-11-19";
 
   src = fetchFromGitHub {
     owner = "yazi-rs";
     repo = "plugins";
-    rev = "9a095057d698aaaedc4dd23d638285bd3fd647e9";
-    hash = "sha256-Lx+TliqMuaXpjaUtjdUac7ODg2yc3yrd1mSWJo9Mz2Q=";
+    rev = "2301ff803a033cd16d16e62697474d6cb9a94711";
+    hash = "sha256-+lirIBXv3EvztE/1b3zHnQ9r5N3VWBCUuH3gZR52fE0=";
   };
 
   meta = {
     description = "Show the status of Git file changes as linemode in the file list";
-    homepage = "https://yazi-rs.github.io";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ khaneliman ];
   };

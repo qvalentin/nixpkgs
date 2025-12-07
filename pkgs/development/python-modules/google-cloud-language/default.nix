@@ -7,21 +7,18 @@
   protobuf,
   pytest-asyncio,
   pytestCheckHook,
-  pythonOlder,
   setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "google-cloud-language";
-  version = "2.17.1";
+  version = "2.18.0";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     pname = "google_cloud_language";
     inherit version;
-    hash = "sha256-vtaZaZXaIaJwl+XvOG9wEB6xw5beDdtNabhzbB91NXw=";
+    hash = "sha256-dblTX2tCTJwI/h7118zkKTJZGoDac6HacsWR39xpxB4=";
   };
 
   build-system = [ setuptools ];
@@ -30,7 +27,8 @@ buildPythonPackage rec {
     google-api-core
     proto-plus
     protobuf
-  ] ++ google-api-core.optional-dependencies.grpc;
+  ]
+  ++ google-api-core.optional-dependencies.grpc;
 
   nativeCheckInputs = [
     pytestCheckHook

@@ -15,13 +15,13 @@
 
 buildPythonApplication rec {
   pname = "gnome-extensions-cli";
-  version = "0.10.5";
+  version = "0.10.8";
   format = "pyproject";
 
   src = fetchPypi {
     pname = "gnome_extensions_cli";
     inherit version;
-    hash = "sha256-Rli4gsxbD84SSyx6hdPz5MKHsYw4jX7XgAkAydg0lGI=";
+    hash = "sha256-Tnf8BbW9u7d19ZtGTdMVHa6azbKekYRGOPEPNiB+y00=";
   };
 
   nativeBuildInputs = [

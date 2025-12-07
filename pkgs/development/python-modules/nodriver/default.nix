@@ -11,12 +11,12 @@
 
 buildPythonPackage rec {
   pname = "nodriver";
-  version = "0.44";
+  version = "0.48.1";
   pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-M2Pxea6srAf1zCTmKG31JVHy38BbGmS2JS5NLF1Y1Uc=";
+    hash = "sha256-SsjNiLavEzwm3BV/t49asXRipZtKDaMwTjrxK75LQ0M=";
   };
 
   disabled = pythonOlder "3.9";

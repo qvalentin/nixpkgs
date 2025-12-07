@@ -10,6 +10,7 @@
   ninja,
   vala,
   gala,
+  glib,
   gtk3,
   libgee,
   granite,
@@ -23,13 +24,13 @@
 
 stdenv.mkDerivation rec {
   pname = "wingpanel";
-  version = "8.0.3";
+  version = "8.0.4";
 
   src = fetchFromGitHub {
     owner = "elementary";
-    repo = pname;
-    rev = version;
-    sha256 = "sha256-3UNtqfDqgclRE8Pe9N8rOt6i2FG6lKNfJAv5Q2OYXUU=";
+    repo = "wingpanel";
+    tag = version;
+    hash = "sha256-+m1TydQtbXuA7uS6hZVC8z6JgOUxDh/QXL/4tROHhwk=";
   };
 
   patches = [
@@ -54,11 +55,15 @@ stdenv.mkDerivation rec {
     elementary-icon-theme
     gala
     granite
-    gtk3
     json-glib
     libgee
     mutter
     wayland
+  ];
+
+  propagatedBuildInputs = [
+    glib
+    gtk3
   ];
 
   preFixup = ''
@@ -84,7 +89,7 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/elementary/wingpanel";
     license = licenses.gpl3Plus;
     platforms = platforms.linux;
-    maintainers = teams.pantheon.members;
+    teams = [ teams.pantheon ];
     mainProgram = "io.elementary.wingpanel";
   };
 }

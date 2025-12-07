@@ -4,18 +4,20 @@
   fetchFromGitHub,
 }:
 
+# Tests with go 1.24 do not work. For now
+# https://github.com/kovetskiy/mark/pull/581#issuecomment-2797872996
 buildGoModule rec {
   pname = "mark";
-  version = "12.1.2";
+  version = "15.1.0";
 
   src = fetchFromGitHub {
     owner = "kovetskiy";
     repo = "mark";
-    rev = version;
-    sha256 = "sha256-t70Od27w/ZT/EHKAgjPBx39Oo4dS1aWL3up7TVlNAuI=";
+    rev = "v${version}";
+    sha256 = "sha256-7aOzl1+Nihj2UiAAaoQAtTlxr1FSOS/0fYmeg/dYukc=";
   };
 
-  vendorHash = "sha256-XPTnsV0JVSatfHzI4ajq8nnN2HTKc8FeKwmOIuXo2GU=";
+  vendorHash = "sha256-jbaDk28NIPqjf5fLOJZnsShVw5Ni14JS4J+T0GKNTbQ=";
 
   ldflags = [
     "-s"
@@ -28,6 +30,7 @@ buildGoModule rec {
       skippedTests = [
         # Expects to be able to launch google-chrome
         "TestExtractMermaidImage"
+        "TestExtractD2Image/example"
       ];
     in
     [
@@ -39,6 +42,9 @@ buildGoModule rec {
     mainProgram = "mark";
     homepage = "https://github.com/kovetskiy/mark";
     license = licenses.asl20;
-    maintainers = with maintainers; [ rguevara84 ];
+    maintainers = with maintainers; [
+      rguevara84
+      wrbbz
+    ];
   };
 }

@@ -50,7 +50,8 @@ stdenv.mkDerivation (finalAttrs: {
   postInstall = ''
     # remove useless man pages about directories
     rm doc/man/man*/_*
-    installManPage doc/man/man*/*
+    # avoid installing doc/man/man3/noname
+    installManPage doc/man/man*/*.*
 
     moveToOutput share/liberasurecode/ $doc
   '';
@@ -65,7 +66,7 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Erasure Code API library written in C with pluggable Erasure Code backends";
     homepage = "https://github.com/openstack/liberasurecode";
     license = licenses.bsd2;
-    maintainers = teams.openstack.members;
+    teams = [ teams.openstack ];
     pkgConfigModules = [ "erasurecode-1" ];
   };
 })

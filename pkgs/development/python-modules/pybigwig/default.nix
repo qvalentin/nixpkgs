@@ -31,7 +31,7 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [ "pyBigWig" ];
 
-  pytestFlagsArray = [ "pyBigWigTest/test*.py" ];
+  enabledTestPaths = [ "pyBigWigTest/test*.py" ];
 
   disabledTests = [
     # Test file is downloaded from GitHub
@@ -51,6 +51,5 @@ buildPythonPackage rec {
     homepage = "https://github.com/deeptools/pyBigWig";
     changelog = "https://github.com/deeptools/pyBigWig/releases/tag/${src.tag}";
     license = licenses.mit;
-    maintainers = with maintainers; [ scalavision ];
   };
 }

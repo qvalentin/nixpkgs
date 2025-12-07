@@ -10,13 +10,13 @@
 
 stdenvNoCC.mkDerivation rec {
   pname = "mint-y-icons";
-  version = "1.8.3";
+  version = "1.8.9";
 
   src = fetchFromGitHub {
     owner = "linuxmint";
     repo = "mint-y-icons";
     rev = version;
-    hash = "sha256-xGPihqXUraJy9lDCSVjQlNxrhETEcjBTYhyFsZGJRGo=";
+    hash = "sha256-eUMBn+2qnU6mgDPM6i2ebwEq3mSV3Uo6bXveVew3j9U=";
   };
 
   propagatedBuildInputs = [
@@ -49,6 +49,6 @@ stdenvNoCC.mkDerivation rec {
     description = "Mint-Y icon theme";
     license = licenses.gpl3; # from debian/copyright
     platforms = platforms.linux;
-    maintainers = teams.cinnamon.members;
+    teams = [ teams.cinnamon ];
   };
 }

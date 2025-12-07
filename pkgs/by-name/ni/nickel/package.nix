@@ -4,42 +4,42 @@
   rustPlatform,
   fetchFromGitHub,
   python3,
+  gitMinimal,
   versionCheckHook,
   pkg-config,
   nixVersions,
   nix-update-script,
-  enableNixImport ? true,
+  enableNixImport ? false,
 }:
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "nickel";
-  version = "1.10.0";
+  version = "1.14.0";
 
   src = fetchFromGitHub {
     owner = "tweag";
     repo = "nickel";
     tag = finalAttrs.version;
-    hash = "sha256-CnEGC4SnLRfAPl3WTv83xertH2ulG5onseZpq3vxfwc=";
+    hash = "sha256-ee9P2XrUToW0WJJk8QnIkY6/9t+RCY98Ai05cz9ViIY=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-CyO+W4332fJmeF2CL+9CCdPuion8MrxzkPotLA7my3U=";
+  cargoHash = "sha256-nO8T+nSfR/EGW8IhjevmCH10P0ky+D0vyULSCVL5OYE=";
 
   cargoBuildFlags = [
     "-p nickel-lang-cli"
     "-p nickel-lang-lsp"
   ];
 
-  nativeBuildInputs =
-    [
-      python3
-    ]
-    ++ lib.optionals enableNixImport [
-      pkg-config
-    ];
+  nativeBuildInputs = [
+    python3
+    gitMinimal
+  ]
+  ++ lib.optionals enableNixImport [
+    pkg-config
+  ];
 
   buildInputs = lib.optionals enableNixImport [
-    nixVersions.nix_2_24
+    nixVersions.nix_2_28
     boost
   ];
 
@@ -66,13 +66,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     # aren't packaging py-nickel anyway
     "--workspace"
     "--exclude=py-nickel"
-  ];
-
-  checkFlags = [
-    # https://github.com/tweag/nickel/blob/1.10.0/git/tests/main.rs#L60
-    # fails because src is not a git repo
-    # `cmd.current_dir(repo.path()).output()` errors with `NotFound`
-    "--skip=fetch_targets"
   ];
 
   postInstall = ''
@@ -104,6 +97,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     maintainers = with lib.maintainers; [
       felschr
       matthiasbeyer
+      yannham
     ];
     mainProgram = "nickel";
   };

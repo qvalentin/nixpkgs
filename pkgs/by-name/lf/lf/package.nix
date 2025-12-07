@@ -8,16 +8,16 @@
 
 buildGoModule rec {
   pname = "lf";
-  version = "34";
+  version = "39";
 
   src = fetchFromGitHub {
     owner = "gokcehan";
     repo = "lf";
-    rev = "r${version}";
-    hash = "sha256-LUlNwzTusp3Deg01K0HOtR5VXI6Ujnb1Dq6p88gFxAU=";
+    tag = "r${version}";
+    hash = "sha256-6M6xMVWHTLPlnG5i6/dC3KEV6RXezz8KK0V81P8RcE0=";
   };
 
-  vendorHash = "sha256-CwsHhFVdC+OCv0LWEahJYu33fE0/isNlHKG3rtEw0Ic=";
+  vendorHash = "sha256-93VPbrNPRW6NyKHJBvmAadbJ+DLsH2jTAXjTKkPdYBA=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -37,7 +37,7 @@ buildGoModule rec {
     installShellCompletion etc/lf.{bash,zsh,fish}
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Terminal file manager written in Go and heavily inspired by ranger";
     longDescription = ''
       lf (as in "list files") is a terminal file manager written in Go. It is
@@ -47,8 +47,8 @@ buildGoModule rec {
     '';
     homepage = "https://godoc.org/github.com/gokcehan/lf";
     changelog = "https://github.com/gokcehan/lf/releases/tag/r${version}";
-    license = licenses.mit;
-    maintainers = with maintainers; [ dotlambda ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ dotlambda ];
     mainProgram = "lf";
   };
 }

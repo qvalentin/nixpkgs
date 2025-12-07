@@ -33,12 +33,12 @@
 
 buildPythonPackage rec {
   pname = "tempest";
-  version = "43.0.0";
+  version = "46.0.0";
   pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-Py8SwyBYO35t+xv8oaxLv58owEUX/T9uhp3XM5wjsAI=";
+    hash = "sha256-ddm1OE7BDwDM4T9GIB0+qK8WvU/+aC+FBIGWDm3ObHM=";
   };
 
   pythonRelaxDeps = [ "defusedxml" ];
@@ -98,6 +98,6 @@ buildPythonPackage rec {
     homepage = "https://github.com/openstack/tempest";
     license = licenses.asl20;
     mainProgram = "tempest";
-    maintainers = teams.openstack.members;
+    teams = [ teams.openstack ];
   };
 }

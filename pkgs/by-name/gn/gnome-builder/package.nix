@@ -24,6 +24,7 @@
   libspelling,
   libsysprof-capture,
   libxml2,
+  libyaml,
   meson,
   ninja,
   ostree,
@@ -42,7 +43,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "gnome-builder";
-  version = "47.2";
+  version = "49.1";
 
   outputs = [
     "out"
@@ -51,7 +52,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = fetchurl {
     url = "mirror://gnome/sources/gnome-builder/${lib.versions.major finalAttrs.version}/gnome-builder-${finalAttrs.version}.tar.xz";
-    hash = "sha256-Roe5PEfNHjNmWi3FA3kLYhPugnhy/ABNl40UvL+ptJU=";
+    hash = "sha256-O55HmDiPlZ4QMsas5KX7e05Yi2M5/OTCLsJqvoafiis=";
   };
 
   patches = [
@@ -99,6 +100,7 @@ stdenv.mkDerivation (finalAttrs: {
     libspelling
     libsysprof-capture
     libxml2
+    libyaml
     ostree
     pcre2
     python3
@@ -175,7 +177,7 @@ stdenv.mkDerivation (finalAttrs: {
     '';
     homepage = "https://apps.gnome.org/Builder/";
     license = licenses.gpl3Plus;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
     platforms = platforms.linux;
     mainProgram = "gnome-builder";
   };

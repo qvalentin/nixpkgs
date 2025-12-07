@@ -6,29 +6,25 @@
   fetchFromGitHub,
   openssl,
   pkg-config,
-  pythonOlder,
   rustc,
   rustPlatform,
 }:
 
 buildPythonPackage rec {
   pname = "typst";
-  version = "0.13.2";
+  version = "0.14.4";
   pyproject = true;
-
-  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "messense";
     repo = "typst-py";
     tag = "v${version}";
-    hash = "sha256-Cqi8GupcC7n/OfiFLrNXw0ydXpOqOpWTgIGJXdib5L8=";
+    hash = "sha256-rG7W6kgkAQf4z+qPjGE0bJsBtXX9GclMXGXjNu+ig0w=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
-    inherit src;
-    name = "${pname}-${version}";
-    hash = "sha256-bcO+irLT4Sy8IZ/YQZFD2jVjZAUCO0j+TitigHo4xbM=";
+    inherit pname version src;
+    hash = "sha256-Cy3OOG5zdoVdjGqWIZmq6WsqJi9nENw+uZN11P/6YeQ=";
   };
 
   build-system = [
@@ -53,7 +49,7 @@ buildPythonPackage rec {
   meta = {
     description = "Python binding to typst";
     homepage = "https://github.com/messense/typst-py";
-    changelog = "https://github.com/messense/typst-py/releases/tag/v${version}";
+    changelog = "https://github.com/messense/typst-py/releases/tag/v${src.tag}";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ fab ];
   };

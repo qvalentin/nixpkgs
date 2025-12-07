@@ -18,13 +18,13 @@
 
 stdenv.mkDerivation rec {
   pname = "elementary-feedback";
-  version = "8.0.1";
+  version = "8.1.0";
 
   src = fetchFromGitHub {
     owner = "elementary";
     repo = "feedback";
-    rev = version;
-    sha256 = "sha256-D0x0jKYEB6Bo8ETgVCjgdOItc+VJYlrr8N9lI/Z3eXU=";
+    tag = version;
+    hash = "sha256-FvlSfcP/Qdo9zBFm2XiEqaxYGILe4BCNPyCELS43pew=";
   };
 
   patches = [
@@ -61,7 +61,7 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/elementary/feedback";
     license = licenses.gpl3Plus;
     platforms = platforms.linux;
-    maintainers = teams.pantheon.members;
+    teams = [ teams.pantheon ];
     mainProgram = "io.elementary.feedback";
   };
 }

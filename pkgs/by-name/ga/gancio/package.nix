@@ -19,19 +19,19 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "gancio";
-  version = "1.25.1";
+  version = "1.28.1";
 
   src = fetchFromGitLab {
     domain = "framagit.org";
     owner = "les";
     repo = "gancio";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-fkX9L7SG3WNmobIxclX7LQUOxBhX70EZSgWMmK9qf5c=";
+    hash = "sha256-G1hkuHIaSWMaW2gmUrv4+AB/TBQutB2bim1HSwNRc2E=";
   };
 
   offlineCache = fetchYarnDeps {
     yarnLock = finalAttrs.src + "/yarn.lock";
-    hash = "sha256-b6eEEwAVjqebBNBR9V2KCPDpoJcs2HAWQJ+eAb6zVIc=";
+    hash = "sha256-N53GctXhKH04rO+N8Tshln6bU+QuOyZPEuJf8hC0wHk=";
   };
 
   nativeBuildInputs = [

@@ -3,6 +3,7 @@
   buildPythonPackage,
   fetchFromGitHub,
   cryptography,
+  fido2,
   setuptools,
   jinja2,
   proton-core,
@@ -20,14 +21,14 @@
 
 buildPythonPackage rec {
   pname = "proton-vpn-api-core";
-  version = "0.42.3";
+  version = "4.13.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "ProtonVPN";
     repo = "python-proton-vpn-api-core";
     rev = "v${version}";
-    hash = "sha256-/GV5DFWc6RBWP723APNxn9FTxdePumYOtdwDQEg4ccA=";
+    hash = "sha256-oFTlN/mi4TACmqbebKirYdqDEYzUejK4SKbKgFWONDo=";
   };
 
   build-system = [
@@ -37,6 +38,7 @@ buildPythonPackage rec {
   dependencies = [
     cryptography
     distro
+    fido2
     jinja2
     pynacl
     proton-core

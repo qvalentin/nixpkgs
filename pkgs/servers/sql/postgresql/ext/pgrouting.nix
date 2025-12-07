@@ -6,12 +6,11 @@
   perl,
   postgresql,
   postgresqlBuildExtension,
-  stdenv,
 }:
 
 postgresqlBuildExtension (finalAttrs: {
   pname = "pgrouting";
-  version = "3.7.3";
+  version = "4.0.0";
 
   nativeBuildInputs = [
     cmake
@@ -23,14 +22,15 @@ postgresqlBuildExtension (finalAttrs: {
     owner = "pgRouting";
     repo = "pgrouting";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-jaevnDCJ6hRQeDhdAkvMTvnnFWElMNvo9gZRW53proQ=";
+    hash = "sha256-HtTWpOE/4UzhUou3abuTKVTZ4yTANeHLl7UB1lLaikg=";
   };
 
   meta = {
     description = "PostgreSQL/PostGIS extension that provides geospatial routing functionality";
     homepage = "https://pgrouting.org/";
     changelog = "https://github.com/pgRouting/pgrouting/releases/tag/v${finalAttrs.version}";
-    maintainers = with lib.maintainers; lib.teams.geospatial.members ++ [ steve-chavez ];
+    maintainers = with lib.maintainers; [ steve-chavez ];
+    teams = [ lib.teams.geospatial ];
     platforms = postgresql.meta.platforms;
     license = lib.licenses.gpl2Plus;
   };

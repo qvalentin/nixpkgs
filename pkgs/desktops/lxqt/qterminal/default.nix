@@ -16,13 +16,13 @@
 
 stdenv.mkDerivation rec {
   pname = "qterminal";
-  version = "2.1.0";
+  version = "2.3.0";
 
   src = fetchFromGitHub {
     owner = "lxqt";
-    repo = pname;
+    repo = "qterminal";
     rev = version;
-    hash = "sha256-Nluw0waf+lqpbajsPv+HYhPD3y7XmgifSu2r7I/J4RI=";
+    hash = "sha256-HwWgVcO9swywei8Z3ifoGJjZ785gdF2A/kBHm4zgzFc=";
   };
 
   nativeBuildInputs = [
@@ -49,6 +49,6 @@ stdenv.mkDerivation rec {
     mainProgram = "qterminal";
     license = licenses.gpl2Plus;
     platforms = with platforms; unix;
-    maintainers = with maintainers; teams.lxqt.members;
+    teams = [ teams.lxqt ];
   };
 }

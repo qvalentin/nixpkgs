@@ -13,6 +13,7 @@
 buildPythonApplication rec {
   pname = "asn2quickder";
   version = "1.7.1";
+  format = "setuptools";
 
   src = fetchFromGitLab {
     owner = "arpa2";
@@ -49,6 +50,5 @@ buildPythonApplication rec {
     homepage = "https://gitlab.com/arpa2/quick-der";
     license = licenses.bsd3;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ leenaars ];
   };
 }

@@ -61,7 +61,7 @@ stdenv.mkDerivation (finalAttrs: {
     export GDK_PIXBUF_MODULE_FILE="${
       gnome._gdkPixbufCacheBuilder_DO_NOT_USE {
         extraLoaders = [
-          libheif.out
+          libheif.lib
           libjxl
           librsvg
           webp-pixbuf-loader
@@ -77,7 +77,7 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://gitlab.xfce.org/apps/ristretto";
     license = lib.licenses.gpl2Plus;
     mainProgram = "ristretto";
-    maintainers = lib.teams.xfce.members;
+    teams = [ lib.teams.xfce ];
     platforms = lib.platforms.linux;
   };
 })

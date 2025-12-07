@@ -6,7 +6,6 @@
   numpy,
   pillow,
   pooch,
-  pythonOlder,
   scooby,
   setuptools,
   typing-extensions,
@@ -15,16 +14,14 @@
 
 buildPythonPackage rec {
   pname = "pyvista";
-  version = "0.44.2";
+  version = "0.46.4";
   pyproject = true;
-
-  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "pyvista";
     repo = "pyvista";
     tag = "v${version}";
-    hash = "sha256-ZQfI0lmh/cwE224yk6a2G3gLUCsBjCQqPI1y4zYj0FI=";
+    hash = "sha256-FFrnLiGiP6LSwaoEHx4tih6XPdKCZ/9tjvz00NQDU0Q=";
   };
 
   build-system = [ setuptools ];
@@ -47,7 +44,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Easier Pythonic interface to VTK";
     homepage = "https://pyvista.org";
-    changelog = "https://github.com/pyvista/pyvista/releases/tag/v${version}";
+    changelog = "https://github.com/pyvista/pyvista/releases/tag/${src.tag}";
     license = licenses.mit;
     maintainers = with maintainers; [ wegank ];
   };

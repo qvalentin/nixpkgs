@@ -1,5 +1,6 @@
 {
   lib,
+  stdenv,
   rustPlatform,
   fetchFromGitHub,
   installShellFiles,
@@ -7,24 +8,22 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "tray-tui";
-  version = "0.2.0";
+  version = "0.3.2";
 
   src = fetchFromGitHub {
     owner = "Levizor";
     repo = "tray-tui";
     tag = version;
-    hash = "sha256-yCA0qN51xrfhHOL34prn6T4qZ7PsLHX1l2yd4o6oGCo=";
+    hash = "sha256-C/vF5dkY9eOL4RQTHuzi7F+mgHWOrVt6sv4eHqUNctg=";
   };
 
-  useFetchCargoVendor = true;
-
-  cargoHash = "sha256-m6m9zZ/H1FpEDTh1M94ZwxLht1Of13xNqM7T3igjc6M=";
+  cargoHash = "sha256-w5ZifkJ86OMiRdHE9f82pxlg7FBuoioD+hgI8CTJtmI=";
 
   nativeBuildInputs = [
     installShellFiles
   ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd tray-tui \
       --bash <($out/bin/tray-tui --completions bash) \
       --zsh <($out/bin/tray-tui --completions zsh) \

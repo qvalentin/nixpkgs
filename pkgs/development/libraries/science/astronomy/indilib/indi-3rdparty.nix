@@ -37,15 +37,17 @@
   limesuite,
   pkg-config,
   zeromq,
+  udevCheckHook,
 }:
 
 let
+  thirdparty_version = "2.1.6.2";
   fxload = libusb1.override { withExamples = true; };
   src-3rdparty = fetchFromGitHub {
     owner = "indilib";
     repo = "indi-3rdparty";
-    rev = "v${indilib.version}";
-    hash = "sha256-WYvinfAbMxgF5Q9iB/itQTMsVmG83lY45JriUo3kzFg=";
+    rev = "v${thirdparty_version}";
+    hash = "sha256-FMvdm7dkOkRlmbPNeQjh0jd+2bOinzW13QPP2NnOr/M=";
   };
 
   buildIndi3rdParty =
@@ -56,7 +58,7 @@ let
       cmakeFlags ? [ ],
       postInstall ? "",
       doCheck ? true,
-      version ? indilib.version,
+      version ? thirdparty_version,
       src ? src-3rdparty,
       meta ? { },
       ...
@@ -69,24 +71,25 @@ let
 
         sourceRoot = "${src.name}/${pname}";
 
-        cmakeFlags =
-          [
-            "-DCMAKE_INSTALL_LIBDIR=lib"
-            "-DUDEVRULES_INSTALL_DIR=lib/udev/rules.d"
-            "-DRULES_INSTALL_DIR=lib/udev/rules.d"
-            "-DINDI_DATA_DIR=share/indi/"
-          ]
-          ++ lib.optional doCheck [
-            "-DINDI_BUILD_UNITTESTS=ON"
-            "-DINDI_BUILD_INTEGTESTS=ON"
-          ]
-          ++ cmakeFlags;
+        cmakeFlags = [
+          "-DCMAKE_INSTALL_LIBDIR=lib"
+          "-DUDEVRULES_INSTALL_DIR=lib/udev/rules.d"
+          "-DRULES_INSTALL_DIR=lib/udev/rules.d"
+          "-DINDI_DATA_DIR=share/indi/"
+        ]
+        ++ lib.optional doCheck [
+          "-DINDI_BUILD_UNITTESTS=ON"
+          "-DINDI_BUILD_INTEGTESTS=ON"
+        ]
+        ++ cmakeFlags;
 
         nativeBuildInputs = [
           cmake
           ninja
           pkg-config
-        ] ++ nativeBuildInputs;
+          udevCheckHook
+        ]
+        ++ nativeBuildInputs;
 
         checkInputs = [ gtest ];
 
@@ -103,6 +106,8 @@ let
           ${postInstall}
         '';
 
+        doInstallCheck = true;
+
         meta =
           with lib;
           {
@@ -111,7 +116,6 @@ let
             changelog = "https://github.com/indilib/indi-3rdparty/releases/tag/v${version}";
             license = licenses.lgpl2Plus;
             maintainers = with maintainers; [
-              hjones2199
               sheepforce
               returntoreality
             ];
@@ -120,29 +124,6 @@ let
           // meta;
       }
     );
-
-  libahp-gt = buildIndi3rdParty {
-    pname = "libahp-gt";
-    meta = with lib; {
-      license = licenses.unfreeRedistributable;
-      platforms = with platforms; x86_64 ++ aarch64 ++ i686 ++ arm;
-    };
-  };
-
-  # broken: needs libdfu
-  libahp-xc = buildIndi3rdParty {
-    pname = "libahp-xc";
-    buildInputs = [
-      libusb-compat-0_1
-      urjtag
-      libftdi1
-    ];
-    meta = with lib; {
-      license = licenses.unfreeRedistributable;
-      broken = true;
-      platforms = [ ];
-    };
-  };
 
   libaltaircam = buildIndi3rdParty {
     pname = "libaltaircam";
@@ -505,13 +486,12 @@ in
     buildInputs = [
       cfitsio
       indilib
-      libahp-xc
       libnova
       zlib
     ];
     meta = {
-      platforms = libahp-xc.meta.platforms;
-      # libahc-xc needs libdfu, which is not packaged
+      platforms = [ ];
+      # libahc-xc not packaged
       broken = true;
     };
   };
@@ -677,11 +657,9 @@ in
       indilib
       gsl
       gtest
-      libahp-gt
       libnova
       zlib
     ];
-    meta.platforms = libahp-gt.meta.platforms;
   };
 
   indi-ffmv = buildIndi3rdParty {
@@ -709,6 +687,7 @@ in
   indi-fli = buildIndi3rdParty {
     pname = "indi-fli";
     buildInputs = [
+      libusb1
       cfitsio
       indilib
       zlib

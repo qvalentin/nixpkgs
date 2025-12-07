@@ -13,16 +13,16 @@
 
 buildGoModule rec {
   pname = "runme";
-  version = "3.13.1";
+  version = "3.16.1";
 
   src = fetchFromGitHub {
     owner = "runmedev";
     repo = "runme";
     rev = "v${version}";
-    hash = "sha256-tzo8P2K3Bgb5Ssn8m848fjcTnW7XSmng/cV6EhdErEQ=";
+    hash = "sha256-cIlX2RvZ5jIdh7+EvjIb8KC4b/3rhkinUsomkJIBYMw=";
   };
 
-  vendorHash = "sha256-Jh8vB8ZCovB89/CY2105K0260LIEv31Empl/ku504To=";
+  vendorHash = "sha256-cGoeRjUB5py8yMvWrw2NaRaVb0kcYxXC1eD4cJNsqz8=";
 
   nativeBuildInputs = [
     installShellFiles
@@ -70,12 +70,12 @@ buildGoModule rec {
     };
   };
 
-  meta = with lib; {
+  meta = {
     description = "Execute commands inside your runbooks, docs, and READMEs";
     mainProgram = "runme";
     homepage = "https://runme.dev";
     changelog = "https://github.com/runmedev/runme/releases/tag/v${version}";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ figsoda ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ _7karni ];
   };
 }

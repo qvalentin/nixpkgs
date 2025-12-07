@@ -7,16 +7,16 @@
 
 buildGoModule rec {
   pname = "nebula";
-  version = "1.9.5";
+  version = "1.10.0";
 
   src = fetchFromGitHub {
     owner = "slackhq";
-    repo = pname;
+    repo = "nebula";
     tag = "v${version}";
-    hash = "sha256-IJMmVKdgYCXCaRndlcoozFBr+RsUhzC1Eqo427K1k+o=";
+    hash = "sha256-p/2A1ZTBUPvrA8eAgLxjR7NSAfiIEkDcjX0Db8dCmfQ=";
   };
 
-  vendorHash = "sha256-oXhq+s5gDKPVClZpOzYi7BaYwcDqbCLBEO5BNGy9LJA=";
+  vendorHash = "sha256-rod6YDosI9nBf2v6Q/rw/fT9p9N8Zo/lu989UhyL8/s=";
 
   subPackages = [
     "cmd/nebula"
@@ -26,10 +26,13 @@ buildGoModule rec {
   ldflags = [ "-X main.Build=${version}" ];
 
   passthru.tests = {
-    inherit (nixosTests) nebula;
+    inherit (nixosTests.nebula)
+      connectivity
+      reload
+      ;
   };
 
-  meta = with lib; {
+  meta = {
     description = "Overlay networking tool with a focus on performance, simplicity and security";
     longDescription = ''
       Nebula is a scalable overlay networking tool with a focus on performance,
@@ -48,8 +51,8 @@ buildGoModule rec {
     '';
     homepage = "https://github.com/slackhq/nebula";
     changelog = "https://github.com/slackhq/nebula/blob/v${version}/CHANGELOG.md";
-    license = licenses.mit;
-    maintainers = with maintainers; [
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
       Br1ght0ne
       numinit
     ];

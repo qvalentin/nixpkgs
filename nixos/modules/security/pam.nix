@@ -145,6 +145,11 @@ let
           description = "Name of the PAM service.";
         };
 
+        enable = lib.mkEnableOption "this PAM service" // {
+          default = true;
+          example = false;
+        };
+
         rules = lib.mkOption {
           # This option is experimental and subject to breaking changes without notice.
           visible = false;
@@ -242,6 +247,23 @@ let
               If set, users with enabled Google Authenticator (created
               {file}`~/.google_authenticator`) will be required
               to provide Google Authenticator token to log in.
+            '';
+          };
+          allowNullOTP = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = ''
+              Whether to allow login for accounts that have no OTP set
+              (i.e., accounts with no OTP configured or no existing
+              {file}`~/.google_authenticator`).
+            '';
+          };
+          forwardPass = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = ''
+              The authentication provides a single field requiring
+              the user's password followed by the one-time password (OTP).
             '';
           };
         };
@@ -527,8 +549,8 @@ let
             '';
           };
 
-          package = lib.mkPackageOption pkgs.plasma5Packages "kwallet-pam" {
-            pkgsText = "pkgs.plasma5Packages";
+          package = lib.mkPackageOption pkgs.kdePackages "kwallet-pam" {
+            pkgsText = "pkgs.kdePackages";
           };
 
           forceRun = lib.mkEnableOption null // {
@@ -989,6 +1011,7 @@ let
                       modulePath = "${config.boot.zfs.package}/lib/security/pam_zfs_key.so";
                       settings = {
                         inherit (config.security.pam.zfs) homes;
+                        mount_recursively = config.security.pam.zfs.mountRecursively;
                       };
                     }
                     {
@@ -1043,6 +1066,8 @@ let
                       modulePath = "${pkgs.google-authenticator}/lib/security/pam_google_authenticator.so";
                       settings = {
                         no_increment_hotp = true;
+                        forward_pass = cfg.googleAuthenticator.forwardPass;
+                        nullok = cfg.googleAuthenticator.allowNullOTP;
                       };
                     }
                     {
@@ -1178,6 +1203,7 @@ let
                 modulePath = "${config.boot.zfs.package}/lib/security/pam_zfs_key.so";
                 settings = {
                   inherit (config.security.pam.zfs) homes;
+                  mount_recursively = config.security.pam.zfs.mountRecursively;
                 };
               }
               {
@@ -1287,7 +1313,7 @@ let
                 name = "lastlog";
                 enable = cfg.updateWtmp;
                 control = "required";
-                modulePath = "${package}/lib/security/pam_lastlog.so";
+                modulePath = "${pkgs.util-linux.lastlog}/lib/security/pam_lastlog2.so";
                 settings = {
                   silent = true;
                 };
@@ -1338,6 +1364,7 @@ let
                 settings = {
                   inherit (config.security.pam.zfs) homes;
                   nounmount = config.security.pam.zfs.noUnmount;
+                  mount_recursively = config.security.pam.zfs.mountRecursively;
                 };
               }
               {
@@ -1566,6 +1593,8 @@ let
         Defaults env_keep+=SSH_AUTH_SOCK
       '';
 
+  enabledServices = lib.filterAttrs (name: svc: svc.enable) config.security.pam.services;
+
 in
 
 {
@@ -1637,7 +1666,7 @@ in
         must be that described in {manpage}`limits.conf(5)`.
 
         Note that these limits do not apply to systemd services,
-        whose limits can be changed via {option}`systemd.extraConfig`
+        whose limits can be changed via {option}`systemd.settings.Manager`
         instead.
       '';
     };
@@ -2169,6 +2198,14 @@ in
           Do not unmount home dataset on logout.
         '';
       };
+
+      mountRecursively = lib.mkOption {
+        default = false;
+        type = lib.types.bool;
+        description = ''
+          Mount child datasets of home dataset.
+        '';
+      };
     };
 
     security.pam.enableEcryptfs = lib.mkEnableOption "eCryptfs PAM module (mounting ecryptfs home directory on login)";
@@ -2244,16 +2281,17 @@ in
           a malicious process can then edit such an authorized_keys file and bypass the ssh-agent-based authentication.
           See https://github.com/NixOS/nixpkgs/issues/31611
         ''
-      ++ lib.optional
-        (
-          with config.security.pam.rssh;
-          enable && settings.auth_key_file or null != null && settings.authorized_keys_command or null != null
-        )
-        ''
-          security.pam.rssh.settings.auth_key_file will be ignored as
-          security.pam.rssh.settings.authorized_keys_command has been specified.
-          Explictly set the former to null to silence this warning.
-        '';
+      ++
+        lib.optional
+          (
+            with config.security.pam.rssh;
+            enable && settings.auth_key_file or null != null && settings.authorized_keys_command or null != null
+          )
+          ''
+            security.pam.rssh.settings.auth_key_file will be ignored as
+            security.pam.rssh.settings.authorized_keys_command has been specified.
+            Explictly set the former to null to silence this warning.
+          '';
 
     environment.systemPackages =
       # Include the PAM modules in the system path mostly for the manpages.
@@ -2271,7 +2309,7 @@ in
       ++ lib.optionals config.security.pam.enableFscrypt [ pkgs.fscrypt-experimental ]
       ++ lib.optionals config.security.pam.u2f.enable [ pkgs.pam_u2f ];
 
-    boot.supportedFilesystems = lib.optionals config.security.pam.enableEcryptfs [ "ecryptfs" ];
+    boot.supportedFilesystems = lib.mkIf config.security.pam.enableEcryptfs [ "ecryptfs" ];
 
     security.wrappers = {
       unix_chkpwd = {
@@ -2282,56 +2320,77 @@ in
       };
     };
 
-    environment.etc = lib.mapAttrs' makePAMService config.security.pam.services;
+    environment.etc = lib.mapAttrs' makePAMService enabledServices;
 
-    security.pam.services =
-      {
-        other.text = ''
-          auth     required pam_warn.so
-          auth     required pam_deny.so
-          account  required pam_warn.so
-          account  required pam_deny.so
-          password required pam_warn.so
-          password required pam_deny.so
-          session  required pam_warn.so
-          session  required pam_deny.so
-        '';
-
-        # Most of these should be moved to specific modules.
-        i3lock = { };
-        i3lock-color = { };
-        vlock = { };
-        xlock = { };
-        xscreensaver = { };
-
-        runuser = {
-          rootOK = true;
-          unixAuth = false;
-          setEnvironment = false;
+    systemd =
+      lib.mkIf (lib.any (service: service.updateWtmp) (lib.attrValues config.security.pam.services))
+        {
+          tmpfiles.packages = [ pkgs.util-linux.lastlog ]; # /lib/tmpfiles.d/lastlog2-tmpfiles.conf
+          services.lastlog2-import = {
+            enable = true;
+            wantedBy = [ "default.target" ];
+            after = [
+              "local-fs.target"
+              "systemd-tmpfiles-setup.service"
+            ];
+            # TODO: ${pkgs.util-linux.lastlog}/lib/systemd/system/lastlog2-import.service
+            # uses unpatched /usr/bin/mv, needs to be fixed on staging
+            # in the meantime, use a service drop-in here
+            serviceConfig.ExecStartPost = [
+              ""
+              "${lib.getExe' pkgs.coreutils "mv"} /var/log/lastlog /var/log/lastlog.migrated"
+            ];
+          };
+          packages = [ pkgs.util-linux.lastlog ]; # lib/systemd/system/lastlog2-import.service
         };
 
-        /*
-          FIXME: should runuser -l start a systemd session? Currently
-          it complains "Cannot create session: Already running in a
-          session".
-        */
-        runuser-l = {
-          rootOK = true;
-          unixAuth = false;
-        };
-      }
-      // lib.optionalAttrs (config.security.pam.enableFscrypt) {
-        # Allow fscrypt to verify login passphrase
-        fscrypt = { };
+    security.pam.services = {
+      other.text = ''
+        auth     required pam_warn.so
+        auth     required pam_deny.so
+        account  required pam_warn.so
+        account  required pam_deny.so
+        password required pam_warn.so
+        password required pam_deny.so
+        session  required pam_warn.so
+        session  required pam_deny.so
+      '';
+
+      # Most of these should be moved to specific modules.
+      i3lock.enable = lib.mkDefault config.programs.i3lock.enable;
+      i3lock-color.enable = lib.mkDefault config.programs.i3lock.enable;
+      vlock.enable = lib.mkDefault config.console.enable;
+      xlock.enable = lib.mkDefault config.services.xserver.enable;
+      xscreensaver.enable = lib.mkDefault config.services.xscreensaver.enable;
+
+      runuser = {
+        rootOK = true;
+        unixAuth = false;
+        setEnvironment = false;
       };
+
+      /*
+        FIXME: should runuser -l start a systemd session? Currently
+        it complains "Cannot create session: Already running in a
+        session".
+      */
+      runuser-l = {
+        rootOK = true;
+        unixAuth = false;
+      };
+    }
+    // lib.optionalAttrs (config.security.pam.enableFscrypt) {
+      # Allow fscrypt to verify login passphrase
+      fscrypt = { };
+    };
 
     security.apparmor.includes."abstractions/pam" =
       lib.concatMapStrings (name: "r ${config.environment.etc."pam.d/${name}".source},\n") (
-        lib.attrNames config.security.pam.services
+        lib.attrNames enabledServices
       )
       + (
         with lib;
-        pipe config.security.pam.services [
+        pipe enabledServices [
           lib.attrValues
           (catAttrs "rules")
           (lib.concatMap lib.attrValues)

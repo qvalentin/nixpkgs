@@ -42,6 +42,36 @@ rec {
     ;
 
   /**
+    Concatenates a list of strings with a separator between each element.
+
+    # Inputs
+
+    `sep`
+    : Separator to add between elements
+
+    `list`
+    : List of strings that will be joined
+
+    # Type
+
+    ```
+    join :: string -> [ string ] -> string
+    ```
+
+    # Examples
+    :::{.example}
+    ## `lib.strings.join` usage example
+
+    ```nix
+    join ", " ["foo" "bar"]
+    => "foo, bar"
+    ```
+
+    :::
+  */
+  join = builtins.concatStringsSep;
+
+  /**
     Concatenate a list of strings.
 
     # Type
@@ -94,7 +124,7 @@ rec {
   concatMapStrings = f: list: concatStrings (map f list);
 
   /**
-    Like `concatMapStrings` except that the f functions also gets the
+    Like `concatMapStrings` except that the function `f` also gets the
     position as a parameter.
 
     # Inputs
@@ -331,6 +361,41 @@ rec {
     :::
   */
   concatLines = concatMapStrings (s: s + "\n");
+
+  /**
+    Given string `s`, replace every occurrence of the string `from` with the string `to`.
+
+    # Inputs
+
+    `from`
+    : The string to be replaced
+
+    `to`
+    : The string to replace with
+
+    `s`
+    : The original string where replacements will be made
+
+    # Type
+
+    ```
+    replaceString :: string -> string -> string -> string
+    ```
+
+    # Examples
+    :::{.example}
+    ## `lib.strings.replaceString` usage example
+
+    ```nix
+    replaceString "world" "Nix" "Hello, world!"
+    => "Hello, Nix!"
+    replaceString "." "_" "v1.2.3"
+    => "v1_2_3"
+    ```
+
+    :::
+  */
+  replaceString = from: to: replaceStrings [ from ] [ to ];
 
   /**
     Repeat a string `n` times,
@@ -668,7 +733,7 @@ rec {
       );
 
   /**
-    Depending on the boolean `cond', return either the given string
+    Depending on the boolean `cond`, return either the given string
     or the empty string. Useful to concatenate against a bigger string.
 
     # Inputs
@@ -998,7 +1063,11 @@ rec {
 
     :::
   */
-  escapeC = list: replaceStrings list (map (c: "\\x${toLower (lib.toHexString (charToInt c))}") list);
+  escapeC =
+    list:
+    replaceStrings list (
+      map (c: "\\x${fixedWidthString 2 "0" (toLower (lib.toHexString (charToInt c)))}") list
+    );
 
   /**
     Escape the `string` so it can be safely placed inside a URL
@@ -1096,7 +1165,7 @@ rec {
         "."
         "~"
       ];
-      toEscape = builtins.removeAttrs asciiTable unreserved;
+      toEscape = removeAttrs asciiTable unreserved;
     in
     replaceStrings (builtins.attrNames toEscape) (
       lib.mapAttrsToList (_: c: "%${fixedWidthString 2 "0" (lib.toHexString c)}") toEscape
@@ -1134,7 +1203,7 @@ rec {
       string = toString arg;
     in
     if match "[[:alnum:],._+:@%/-]+" string == null then
-      "'${replaceStrings [ "'" ] [ "'\\''" ] string}'"
+      "'${replaceString "'" "'\\''" string}'"
     else
       string;
 
@@ -1398,9 +1467,6 @@ rec {
       [ "\"" "'" "<" ">" "&" ]
       [ "&quot;" "&apos;" "&lt;" "&gt;" "&amp;" ];
 
-  # warning added 12-12-2022
-  replaceChars = lib.warn "lib.replaceChars is a deprecated alias of lib.replaceStrings." builtins.replaceStrings;
-
   # Case conversion utilities.
   lowerChars = stringToCharacters "abcdefghijklmnopqrstuvwxyz";
   upperChars = stringToCharacters "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -1497,6 +1563,63 @@ rec {
       );
 
   /**
+    Converts a string to camelCase. Handles snake_case, PascalCase,
+    kebab-case strings as well as strings delimited by spaces.
+
+    # Inputs
+
+    `string`
+    : The string to convert to camelCase
+
+    # Type
+
+    ```
+    toCamelCase :: string -> string
+    ```
+
+    # Examples
+    :::{.example}
+    ## `lib.strings.toCamelCase` usage example
+
+    ```nix
+    toCamelCase "hello-world"
+    => "helloWorld"
+    toCamelCase "hello_world"
+    => "helloWorld"
+    toCamelCase "hello world"
+    => "helloWorld"
+    toCamelCase "HelloWorld"
+    => "helloWorld"
+    ```
+
+    :::
+  */
+  toCamelCase =
+    str:
+    lib.throwIfNot (isString str) "toCamelCase does only accepts string values, but got ${typeOf str}" (
+      let
+        separators = splitStringBy (
+          prev: curr:
+          elem curr [
+            "-"
+            "_"
+            " "
+          ]
+        ) false str;
+
+        parts = lib.flatten (
+          map (splitStringBy (
+            prev: curr: match "[a-z]" prev != null && match "[A-Z]" curr != null
+          ) true) separators
+        );
+
+        first = if length parts > 0 then toLower (head parts) else "";
+        rest = if length parts > 1 then map toSentenceCase (tail parts) else [ ];
+      in
+      concatStrings (map (addContextFrom str) ([ first ] ++ rest))
+    );
+
+  /**
     Appends string context from string like object `src` to `target`.
 
     :::{.warning}
@@ -1589,7 +1712,98 @@ rec {
     map (addContextFrom s) splits;
 
   /**
-    Return a string without the specified prefix, if the prefix matches.
+    Splits a string into substrings based on a predicate that examines adjacent characters.
+
+    This function provides a flexible way to split strings by checking pairs of characters
+    against a custom predicate function. Unlike simpler splitting functions, this allows
+    for context-aware splitting based on character transitions and patterns.
+
+    # Inputs
+
+    `predicate`
+    : Function that takes two arguments (previous character and current character)
+      and returns true when the string should be split at the current position.
+      For the first character, previous will be "" (empty string).
+
+    `keepSplit`
+    : Boolean that determines whether the splitting character should be kept as
+      part of the result. If true, the character will be included at the beginning
+      of the next substring; if false, it will be discarded.
+
+    `str`
+    : The input string to split.
+
+    # Return
+
+    A list of substrings from the original string, split according to the predicate.
+
+    # Type
+
+    ```
+    splitStringBy :: (string -> string -> bool) -> bool -> string -> [string]
+    ```
+
+    # Examples
+    :::{.example}
+    ## `lib.strings.splitStringBy` usage example
+
+    Split on periods and hyphens, discarding the separators:
+    ```nix
+    splitStringBy (prev: curr: builtins.elem curr [ "." "-" ]) false "foo.bar-baz"
+    => [ "foo" "bar" "baz" ]
+    ```
+
+    Split on transitions from lowercase to uppercase, keeping the uppercase characters:
+    ```nix
+    splitStringBy (prev: curr: builtins.match "[a-z]" prev != null && builtins.match "[A-Z]" curr != null) true "fooBarBaz"
+    => [ "foo" "Bar" "Baz" ]
+    ```
+
+    Handle leading separators correctly:
+    ```nix
+    splitStringBy (prev: curr: builtins.elem curr [ "." ]) false ".foo.bar.baz"
+    => [ "" "foo" "bar" "baz" ]
+    ```
+
+    Handle trailing separators correctly:
+    ```nix
+    splitStringBy (prev: curr: builtins.elem curr [ "." ]) false "foo.bar.baz."
+    => [ "foo" "bar" "baz" "" ]
+    ```
+    :::
+  */
+  splitStringBy =
+    predicate: keepSplit: str:
+    let
+      len = stringLength str;
+
+      # Helper function that processes the string character by character
+      go =
+        pos: currentPart: result:
+        # Base case: reached end of string
+        if pos == len then
+          result ++ [ currentPart ]
+        else
+          let
+            currChar = substring pos 1 str;
+            prevChar = if pos > 0 then substring (pos - 1) 1 str else "";
+            isSplit = predicate prevChar currChar;
+          in
+          if isSplit then
+            # Split here - add current part to results and start a new one
+            let
+              newResult = result ++ [ currentPart ];
+              newCurrentPart = if keepSplit then currChar else "";
+            in
+            go (pos + 1) newCurrentPart newResult
+          else
+            # Keep building current part
+            go (pos + 1) (currentPart + currChar) result;
+    in
+    if len == 0 then [ (addContextFrom str "") ] else map (addContextFrom str) (go 0 "" [ ]);
+
+  /**
+    Returns a string without the specified prefix, if the prefix matches.
 
     # Inputs
 
@@ -1640,7 +1854,7 @@ rec {
       );
 
   /**
-    Return a string without the specified suffix, if the suffix matches.
+    Returns a string without the specified suffix, if the suffix matches.
 
     # Inputs
 
@@ -1691,7 +1905,7 @@ rec {
       );
 
   /**
-    Return true if string `v1` denotes a version older than `v2`.
+    Returns true if string `v1` denotes a version older than `v2`.
 
     # Inputs
 
@@ -1723,7 +1937,7 @@ rec {
   versionOlder = v1: v2: compareVersions v2 v1 == 1;
 
   /**
-    Return true if string v1 denotes a version equal to or newer than v2.
+    Returns true if string `v1` denotes a version equal to or newer than `v2`.
 
     # Inputs
 
@@ -1874,14 +2088,14 @@ rec {
 
     # Inputs
 
-    `feature`
-    : The feature to be set
-
     `type`
     : The type of the feature to be set, as described in
-      https://cmake.org/cmake/help/latest/command/set.html
+      [the CMake set documentation](https://cmake.org/cmake/help/latest/command/set.html)
       the possible values (case insensitive) are:
       BOOL FILEPATH PATH STRING INTERNAL LIST
+
+    `feature`
+    : The feature to be set
 
     `value`
     : The desired value
@@ -1921,7 +2135,7 @@ rec {
     "-D${feature}:${toUpper type}=${value}";
 
   /**
-    Create a -D<condition>={TRUE,FALSE} string that can be passed to typical
+    Create a `"-D<condition>={TRUE,FALSE}"` string that can be passed to typical
     CMake invocations.
 
     # Inputs
@@ -1956,7 +2170,7 @@ rec {
     cmakeOptionType "bool" condition (lib.toUpper (lib.boolToString flag));
 
   /**
-    Create a -D<feature>:STRING=<value> string that can be passed to typical
+    Create a `"-D<feature>:STRING=<value>"` string that can be passed to typical
     CMake invocations.
     This is the most typical usage, so it deserves a special case.
 
@@ -1992,7 +2206,7 @@ rec {
     cmakeOptionType "string" feature value;
 
   /**
-    Create a -D<feature>=<value> string that can be passed to typical Meson
+    Create a `"-D<feature>=<value>"` string that can be passed to typical Meson
     invocations.
 
     # Inputs
@@ -2027,7 +2241,7 @@ rec {
     "-D${feature}=${value}";
 
   /**
-    Create a -D<condition>={true,false} string that can be passed to typical
+    Create a `"-D<condition>={true,false}"` string that can be passed to typical
     Meson invocations.
 
     # Inputs
@@ -2064,7 +2278,7 @@ rec {
     mesonOption condition (lib.boolToString flag);
 
   /**
-    Create a -D<feature>={enabled,disabled} string that can be passed to
+    Create a `"-D<feature>={enabled,disabled}"` string that can be passed to
     typical Meson invocations.
 
     # Inputs
@@ -2101,7 +2315,7 @@ rec {
     mesonOption feature (if flag then "enabled" else "disabled");
 
   /**
-    Create an --{enable,disable}-<feature> string that can be passed to
+    Create an `"--{enable,disable}-<feature>"` string that can be passed to
     standard GNU Autoconf scripts.
 
     # Inputs
@@ -2138,8 +2352,8 @@ rec {
     "--${if flag then "enable" else "disable"}-${feature}";
 
   /**
-    Create an --{enable-<feature>=<value>,disable-<feature>} string that can be passed to
-    standard GNU Autoconf scripts.
+    Create an `"--{enable-<feature>=<value>,disable-<feature>}"` string that
+    can be passed to standard GNU Autoconf scripts.
 
     # Inputs
 
@@ -2176,7 +2390,7 @@ rec {
     enableFeature flag feature + optionalString flag "=${value}";
 
   /**
-    Create an --{with,without}-<feature> string that can be passed to
+    Create an `"--{with,without}-<feature>"` string that can be passed to
     standard GNU Autoconf scripts.
 
     # Inputs
@@ -2212,7 +2426,7 @@ rec {
     "--${if flag then "with" else "without"}-${feature}";
 
   /**
-    Create an --{with-<feature>=<value>,without-<feature>} string that can be passed to
+    Create an `"--{with-<feature>=<value>,without-<feature>}"` string that can be passed to
     standard GNU Autoconf scripts.
 
     # Inputs
@@ -2362,31 +2576,7 @@ rec {
     lib.warnIf (!precise) "Imprecise conversion from float to string ${result}" result;
 
   /**
-    Check whether a value `val` can be coerced to a string.
-
-    :::{.warning}
-    Soft-deprecated function. While the original implementation is available as
-    `isConvertibleWithToString`, consider using `isStringLike` instead, if suitable.
-    :::
-
-    # Inputs
-
-    `val`
-    : 1\. Function argument
-
-    # Type
-
-    ```
-    isCoercibleToString :: a -> bool
-    ```
-  */
-  isCoercibleToString =
-    lib.warnIf (lib.oldestSupportedReleaseIsAtLeast 2305)
-      "lib.strings.isCoercibleToString is deprecated in favor of either isStringLike or isConvertibleWithToString. Only use the latter if it needs to return true for null, numbers, booleans and list of similarly coercibles."
-      isConvertibleWithToString;
-
-  /**
-    Check whether a list or other value `x` can be passed to toString.
+    Check whether a list or other value `x` can be passed to `toString`.
 
     Many types of value are coercible to string this way, including `int`, `float`,
     `null`, `bool`, `list` of similarly coercible values.
@@ -2485,7 +2675,7 @@ rec {
 
   /**
     Parse a string as an int. Does not support parsing of integers with preceding zero due to
-    ambiguity between zero-padded and octal numbers. See toIntBase10.
+    ambiguity between zero-padded and octal numbers. See `toIntBase10`.
 
     # Inputs
 
@@ -2626,60 +2816,6 @@ rec {
       parsedInput;
 
   /**
-    Read a list of paths from `file`, relative to the `rootPath`.
-    Lines beginning with `#` are treated as comments and ignored.
-    Whitespace is significant.
-
-    :::{.warning}
-    This function is deprecated and should be avoided.
-    :::
-
-    :::{.note}
-    This function is not performant and should be avoided.
-    :::
-
-    # Inputs
-
-    `rootPath`
-    : 1\. Function argument
-
-    `file`
-    : 2\. Function argument
-
-    # Type
-
-    ```
-    readPathsFromFile :: string -> string -> [string]
-    ```
-
-    # Examples
-    :::{.example}
-    ## `lib.strings.readPathsFromFile` usage example
-
-    ```nix
-    readPathsFromFile /prefix
-      ./pkgs/development/libraries/qt-5/5.4/qtbase/series
-    => [ "/prefix/dlopen-resolv.patch" "/prefix/tzdir.patch"
-         "/prefix/dlopen-libXcursor.patch" "/prefix/dlopen-openssl.patch"
-         "/prefix/dlopen-dbus.patch" "/prefix/xdg-config-dirs.patch"
-         "/prefix/nix-profiles-library-paths.patch"
-         "/prefix/compose-search-path.patch" ]
-    ```
-
-    :::
-  */
-  readPathsFromFile = lib.warn "lib.readPathsFromFile is deprecated, use a list instead." (
-    rootPath: file:
-    let
-      lines = lib.splitString "\n" (readFile file);
-      removeComments = lib.filter (line: line != "" && !(lib.hasPrefix "#" line));
-      relativePaths = removeComments lines;
-      absolutePaths = map (path: rootPath + "/${path}") relativePaths;
-    in
-    absolutePaths
-  );
-
-  /**
     Read the contents of a file removing the trailing \n
 
     # Inputs
@@ -2768,7 +2904,7 @@ rec {
     Computes the Levenshtein distance between two strings `a` and `b`.
 
     Complexity O(n*m) where n and m are the lengths of the strings.
-    Algorithm adjusted from https://stackoverflow.com/a/9750974/6605742
+    Algorithm adjusted from [this stackoverflow comment](https://stackoverflow.com/a/9750974/6605742)
 
     # Inputs
 

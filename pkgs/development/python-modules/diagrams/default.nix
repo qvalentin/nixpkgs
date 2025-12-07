@@ -15,7 +15,7 @@
 
 buildPythonPackage rec {
   pname = "diagrams";
-  version = "0.24.2";
+  version = "0.24.4";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -24,16 +24,14 @@ buildPythonPackage rec {
     owner = "mingrammer";
     repo = "diagrams";
     tag = "v${version}";
-    hash = "sha256-xdc8qHvLKy5QV/1c87o7H/VhitUhpH/+VgqBHn2a8lg=";
+    hash = "sha256-N4JGrtgLgGUayFR6/xTf3GZEZjtxC/4De3ZCfRZbi6M=";
   };
 
   patches = [
     # Add build-system, https://github.com/mingrammer/diagrams/pull/1089
-    (fetchpatch {
-      name = "add-build-system.patch";
-      url = "https://github.com/mingrammer/diagrams/commit/59b84698b142f5a0998ee9e395df717a1b77e9b2.patch";
-      hash = "sha256-/zV5X4qgHJs+KO9gHyu6LqQ3hB8Zx+BzOFo7K1vQK78=";
-    })
+    ./0001-Add-build-system-section.patch
+    # Fix poetry include, https://github.com/mingrammer/diagrams/pull/1128
+    ./0002-Fix-packaging-Ensure-resources-are-included.patch
     ./remove-black-requirement.patch
   ];
 
@@ -66,7 +64,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Diagram as Code";
     homepage = "https://diagrams.mingrammer.com/";
-    changelog = "https://github.com/mingrammer/diagrams/releases/tag/v${version}";
+    changelog = "https://github.com/mingrammer/diagrams/releases/tag/${src.tag}";
     license = licenses.mit;
     maintainers = with maintainers; [ addict3d ];
   };

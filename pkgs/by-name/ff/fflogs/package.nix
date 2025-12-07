@@ -6,10 +6,10 @@
 
 let
   pname = "fflogs";
-  version = "8.16.31";
+  version = "8.17.115";
   src = fetchurl {
     url = "https://github.com/RPGLogs/Uploaders-fflogs/releases/download/v${version}/fflogs-v${version}.AppImage";
-    hash = "sha256-E/obhD5AwgF81oj4UXEjOmTGElHITxPalUrhbnN6IYs=";
+    hash = "sha256-i16jMTbthl+XvL/I6tOqBKBdKyb6wOLYIQeWveR4Oyg=";
   };
   extracted = appimageTools.extractType2 { inherit pname version src; };
 in
@@ -21,7 +21,7 @@ appimageTools.wrapType2 {
     cp -r ${extracted}/usr/share/icons $out/share/
     chmod -R +w $out/share/
     test ! -e $out/share/icons/hicolor/0x0 # check for regression of https://github.com/electron-userland/electron-builder/issues/5294
-    cp ${extracted}/fflogs.desktop $out/share/applications/
+    cp ${extracted}/'FF Logs Uploader.desktop' $out/share/applications/fflogs.desktop
     sed -i 's@^Exec=AppRun --no-sandbox@Exec=fflogs@g' $out/share/applications/fflogs.desktop
   '';
 
@@ -32,7 +32,7 @@ appimageTools.wrapType2 {
     license = licenses.unfree; # no license listed
     mainProgram = "fflogs";
     platforms = platforms.linux;
-    maintainers = with maintainers; [ sersorrel ];
+    maintainers = with maintainers; [ keysmashes ];
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
   };
 }

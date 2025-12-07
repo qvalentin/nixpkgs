@@ -25,13 +25,12 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  hardeningEnable = [ "pie" ];
-
   configureFlags = [
     "--enable-default-colors"
     "--enable-widec"
     "--enable-ipv6"
-  ] ++ lib.optional sslSupport "--with-ssl";
+  ]
+  ++ lib.optional sslSupport "--with-ssl";
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ nukeReferences ] ++ lib.optional sslSupport pkg-config;
@@ -39,7 +38,8 @@ stdenv.mkDerivation rec {
   buildInputs = [
     ncurses
     gzip
-  ] ++ lib.optional sslSupport openssl;
+  ]
+  ++ lib.optional sslSupport openssl;
 
   # cfg_defs.h captures lots of references to build-only dependencies, derived
   # from config.cache.

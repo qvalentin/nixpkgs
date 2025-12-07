@@ -11,6 +11,7 @@
   libarchive,
   libxml2,
   xapp,
+  xapp-symbolic-icons,
   meson,
   pkg-config,
   cairo,
@@ -36,13 +37,13 @@
 
 stdenv.mkDerivation rec {
   pname = "xreader";
-  version = "4.2.3";
+  version = "4.6.0";
 
   src = fetchFromGitHub {
     owner = "linuxmint";
-    repo = pname;
+    repo = "xreader";
     rev = version;
-    hash = "sha256-qBnnxygkAn1wF3gtqR0At1e1e+sx1/2MoSWqmshW5Qg=";
+    hash = "sha256-cp/pZ42AS98AD78BVMeY3SHQHkYA2h4o0kddr/H+kUA=";
   };
 
   nativeBuildInputs = [
@@ -58,7 +59,8 @@ stdenv.mkDerivation rec {
   mesonFlags = [
     "-Dmathjax-directory=${nodePackages.mathjax}"
     "-Dintrospection=true"
-  ] ++ (map (x: "-D${x}=true") backends);
+  ]
+  ++ (map (x: "-D${x}=true") backends);
 
   buildInputs = [
     glib
@@ -76,12 +78,18 @@ stdenv.mkDerivation rec {
     djvulibre
   ];
 
+  preFixup = ''
+    gappsWrapperArgs+=(
+      --prefix XDG_DATA_DIRS : "${lib.makeSearchPath "share" [ xapp-symbolic-icons ]}"
+    )
+  '';
+
   meta = with lib; {
     description = "Document viewer capable of displaying multiple and single page
 document formats like PDF and Postscript";
     homepage = "https://github.com/linuxmint/xreader";
     license = licenses.gpl2Plus;
     platforms = platforms.linux;
-    maintainers = teams.cinnamon.members;
+    teams = [ teams.cinnamon ];
   };
 }

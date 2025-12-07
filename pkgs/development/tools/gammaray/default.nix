@@ -23,13 +23,13 @@
 
 stdenv.mkDerivation rec {
   pname = "gammaray";
-  version = "3.1.0";
+  version = "3.3.1";
 
   src = fetchFromGitHub {
     owner = "KDAB";
     repo = pname;
-    rev = "v${version}";
-    hash = "sha256-mJw9yckbkFVYZlcakai/hH/gAD0xOQir5JqGMNnB/dE=";
+    tag = "v${version}";
+    hash = "sha256-CJKb7H77PjPwCGW4fqLSJw1mhSweuFYlDE/7RyVDcT0=";
   };
 
   nativeBuildInputs = [
@@ -63,9 +63,10 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "Software introspection tool for Qt applications developed by KDAB";
     homepage = "https://github.com/KDAB/GammaRay";
+    changelog = "https://github.com/KDAB/GammaRay/releases/tag/${src.tag}";
     license = licenses.gpl2Plus;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ rewine ];
+    maintainers = with maintainers; [ wineee ];
     mainProgram = "gammaray";
   };
 }

@@ -11,6 +11,7 @@
   mock,
   pytest-asyncio,
   pytestCheckHook,
+  python-multipart,
   pythonOlder,
   requests,
   setuptools,
@@ -20,7 +21,7 @@
 
 buildPythonPackage rec {
   pname = "authlib";
-  version = "1.5.1";
+  version = "1.6.5";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -29,7 +30,7 @@ buildPythonPackage rec {
     owner = "lepture";
     repo = "authlib";
     tag = "v${version}";
-    hash = "sha256-VMihaWqR4FbnTJ50fVf5e5B9GfVwRguq5UAC+D4bpxs=";
+    hash = "sha256-lz2cPqag6lZ9PXb3O/SV4buIPDDzhI71/teqWHLG+vE=";
   };
 
   build-system = [ setuptools ];
@@ -46,15 +47,11 @@ buildPythonPackage rec {
     mock
     pytest-asyncio
     pytestCheckHook
+    python-multipart
     requests
     starlette
     werkzeug
   ];
-
-  preCheck = ''
-    # httpx 0.28.0+ requires SSL_CERT_FILE or SSL_CERT_DIR
-    export SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt
-  '';
 
   pythonImportsCheck = [ "authlib" ];
 

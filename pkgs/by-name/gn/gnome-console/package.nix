@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchurl,
+  appstream,
   gettext,
   gnome,
   libgtop,
@@ -20,14 +21,15 @@
 
 stdenv.mkDerivation rec {
   pname = "gnome-console";
-  version = "47.1";
+  version = "49.1";
 
   src = fetchurl {
     url = "mirror://gnome/sources/gnome-console/${lib.versions.major version}/${pname}-${version}.tar.xz";
-    hash = "sha256-0/YAtFtRcWaRrukocDMunJqMqJ1VNWXzEx2eKAdHJdA=";
+    hash = "sha256-/KOf0EHgXufKbSpcggAZN9Aq4VE/PzZRvTeuDi72bj4=";
   };
 
   nativeBuildInputs = [
+    appstream
     desktop-file-utils
     gettext
     meson
@@ -63,7 +65,8 @@ stdenv.mkDerivation rec {
     description = "Simple user-friendly terminal emulator for the GNOME desktop";
     homepage = "https://gitlab.gnome.org/GNOME/console";
     license = licenses.gpl3Plus;
-    maintainers = teams.gnome.members ++ (with maintainers; [ zhaofengli ]);
+    maintainers = with maintainers; [ zhaofengli ];
+    teams = [ teams.gnome ];
     platforms = platforms.unix;
     mainProgram = "kgx";
   };

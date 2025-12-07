@@ -19,11 +19,16 @@
   libpulseaudio,
   wrapGAppsHook3,
   mateUpdateScript,
+  udevCheckHook,
 }:
 
 stdenv.mkDerivation rec {
   pname = "mate-settings-daemon";
   version = "1.28.0";
+  outputs = [
+    "out"
+    "man"
+  ];
 
   src = fetchurl {
     url = "https://pub.mate-desktop.org/releases/${lib.versions.majorMinor version}/${pname}-${version}.tar.xz";
@@ -34,6 +39,7 @@ stdenv.mkDerivation rec {
     gettext
     pkg-config
     wrapGAppsHook3
+    udevCheckHook
   ];
 
   buildInputs = [
@@ -47,13 +53,16 @@ stdenv.mkDerivation rec {
     gtk3
     dconf
     mate-desktop
-  ] ++ lib.optional pulseaudioSupport libpulseaudio;
+  ]
+  ++ lib.optional pulseaudioSupport libpulseaudio;
 
   configureFlags = lib.optional pulseaudioSupport "--enable-pulse";
 
   env.NIX_CFLAGS_COMPILE = "-I${glib.dev}/include/gio-unix-2.0";
 
   enableParallelBuilding = true;
+
+  doInstallCheck = true;
 
   passthru.updateScript = mateUpdateScript { inherit pname; };
 
@@ -67,6 +76,6 @@ stdenv.mkDerivation rec {
       mit
     ];
     platforms = platforms.unix;
-    maintainers = teams.mate.members;
+    teams = [ teams.mate ];
   };
 }

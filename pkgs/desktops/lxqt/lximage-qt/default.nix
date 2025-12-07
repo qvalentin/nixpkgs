@@ -21,13 +21,13 @@
 
 stdenv.mkDerivation rec {
   pname = "lximage-qt";
-  version = "2.1.1";
+  version = "2.3.0";
 
   src = fetchFromGitHub {
     owner = "lxqt";
-    repo = pname;
+    repo = "lximage-qt";
     rev = version;
-    hash = "sha256-Y9lBXEROC4LIl1M7js0TvJBBNyO06qCWpHxvQjcYPhc=";
+    hash = "sha256-RJKXcaZJe5gyDubdglOmzmJ9XCH0gAW4fc7OR3anCoU=";
   };
 
   nativeBuildInputs = [
@@ -58,6 +58,6 @@ stdenv.mkDerivation rec {
     mainProgram = "lximage-qt";
     license = licenses.gpl2Plus;
     platforms = with platforms; unix;
-    maintainers = teams.lxqt.members;
+    teams = [ teams.lxqt ];
   };
 }

@@ -9,13 +9,13 @@
 buildHomeAssistantComponent rec {
   owner = "hultenvp";
   domain = "solis";
-  version = "3.9.1";
+  version = "4.0.1";
 
   src = fetchFromGitHub {
     owner = "hultenvp";
     repo = "solis-sensor";
     rev = "v${version}";
-    hash = "sha256-hiCgro2BDi1ZXxZu9E+m0wdHN0qnjlUvgv4pPmSb9j4=";
+    hash = "sha256-53bRd+Zz46Mxiycpa8h4DXc9wUFmkczNtpteTkci4Q0=";
   };
 
   dependencies = [ aiofiles ];
@@ -29,6 +29,6 @@ buildHomeAssistantComponent rec {
     changelog = "https://github.com/hultenvp/solis-sensor/releases/tag/v${version}";
     homepage = "https://github.com/hultenvp/solis-sensor";
     license = licenses.asl20;
-    maintainers = with maintainers; [ jnsgruk ];
+    maintainers = [ ];
   };
 }

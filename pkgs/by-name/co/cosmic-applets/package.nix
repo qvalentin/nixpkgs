@@ -11,6 +11,7 @@
   glib,
   libinput,
   pulseaudio,
+  pipewire,
   udev,
   xkeyboard_config,
   nix-update-script,
@@ -19,23 +20,24 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "cosmic-applets";
-  version = "1.0.0-alpha.6";
+  version = "1.0.0-beta.9";
 
+  # nixpkgs-update: no auto update
   src = fetchFromGitHub {
     owner = "pop-os";
     repo = "cosmic-applets";
     tag = "epoch-${finalAttrs.version}";
-    hash = "sha256-kRj2hEtE8FYky9Fn8hgHBo+UwWjOoS7/ROh9qz/0Vzs=";
+    hash = "sha256-HZi9pT9s7h/TJtWK28vlCvhiuQqmxZa0HmSsnBa8F80=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-jADtvhMzWdJydT1T14PSk4ggZpWIcXiOK0TW2llKeos=";
+  cargoHash = "sha256-8Zq8l4gRI9FuGFy6Gi5doFNvOT7nOy8qCE9pmbcCELQ=";
 
   nativeBuildInputs = [
     just
     pkg-config
     util-linuxMinimal
     libcosmicAppHook
+    rustPlatform.bindgenHook
   ];
 
   buildInputs = [
@@ -43,6 +45,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     glib
     libinput
     pulseaudio
+    pipewire
     udev
   ];
 
@@ -88,7 +91,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     homepage = "https://github.com/pop-os/cosmic-applets";
     description = "Applets for the COSMIC Desktop Environment";
     license = lib.licenses.gpl3Only;
-    maintainers = lib.teams.cosmic.members;
+    teams = [ lib.teams.cosmic ];
     platforms = lib.platforms.linux;
   };
 })

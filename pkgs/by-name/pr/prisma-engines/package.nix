@@ -13,17 +13,16 @@
 # function correctly.
 rustPlatform.buildRustPackage rec {
   pname = "prisma-engines";
-  version = "6.3.0";
+  version = "6.18.0";
 
   src = fetchFromGitHub {
     owner = "prisma";
     repo = "prisma-engines";
     rev = version;
-    hash = "sha256-gQLDskabTaNk19BJi9Kv4TiEfVck2QZ7xdhopt5KH6M=";
+    hash = "sha256-p198o8ON5mGPCxK+gE0mW+JVyQlNsCsqwa8D4MNBkpA=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-GLOGivOH8psE5/M5kYakh9Cab4Xe5Q8isY1c6YDyAB8=";
+  cargoHash = "sha256-bNl04GoxLX+B8dPgqWL/VarreBVebjwNDwQjtQcJnsg=";
 
   # Use system openssl.
   OPENSSL_NO_VENDOR = 1;
@@ -63,6 +62,8 @@ rustPlatform.buildRustPackage rec {
   # Tests are long to compile
   doCheck = false;
 
+  setupHook = ./setup-hook.sh;
+
   meta = with lib; {
     description = "Collection of engines that power the core stack for Prisma";
     homepage = "https://www.prisma.io/";
@@ -70,7 +71,6 @@ rustPlatform.buildRustPackage rec {
     platforms = platforms.unix;
     mainProgram = "prisma";
     maintainers = with maintainers; [
-      pimeys
       tomhoule
       aqrln
     ];

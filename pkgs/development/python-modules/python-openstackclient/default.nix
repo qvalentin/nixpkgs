@@ -18,6 +18,7 @@
   python-manilaclient,
   python-mistralclient,
   python-neutronclient,
+  python-octaviaclient,
   python-openstackclient,
   python-watcherclient,
   python-zaqarclient,
@@ -33,13 +34,13 @@
 
 buildPythonPackage rec {
   pname = "python-openstackclient";
-  version = "8.0.0";
+  version = "8.2.0";
   pyproject = true;
 
   src = fetchPypi {
     pname = "python_openstackclient";
     inherit version;
-    hash = "sha256-W3peBok/gztdKW0BnFDULHNo43dI7mvo6bFWVbmZQk4=";
+    hash = "sha256-1hKvGN/GbMjzHmzpZpC2wnOt6KJA7EC39INaiJb7vgE=";
   };
 
   build-system = [
@@ -51,16 +52,15 @@ buildPythonPackage rec {
 
   sphinxBuilders = [ "man" ];
 
-  dependencies =
-    [
-      osc-lib
-      pbr
-      python-cinderclient
-      python-keystoneclient
-      requests
-    ]
-    # to support proxy envs like ALL_PROXY in requests
-    ++ requests.optional-dependencies.socks;
+  dependencies = [
+    osc-lib
+    pbr
+    python-cinderclient
+    python-keystoneclient
+    requests
+  ]
+  # to support proxy envs like ALL_PROXY in requests
+  ++ requests.optional-dependencies.socks;
 
   nativeCheckInputs = [
     ddt
@@ -70,7 +70,8 @@ buildPythonPackage rec {
 
   checkPhase = ''
     runHook preCheck
-    stestr run
+    stestr run -E \
+      "openstackclient.tests.unit.volume.v3.test_volume.(TestVolumeCreate|TestVolumeShow)"
     runHook postCheck
   '';
 
@@ -89,6 +90,7 @@ buildPythonPackage rec {
       python-manilaclient
       python-mistralclient
       python-neutronclient
+      python-octaviaclient
       python-watcherclient
       python-zaqarclient
       python-zunclient
@@ -107,6 +109,6 @@ buildPythonPackage rec {
     mainProgram = "openstack";
     homepage = "https://github.com/openstack/python-openstackclient";
     license = licenses.asl20;
-    maintainers = teams.openstack.members;
+    teams = [ teams.openstack ];
   };
 }

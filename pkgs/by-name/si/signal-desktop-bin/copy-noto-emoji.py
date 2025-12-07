@@ -18,24 +18,6 @@ import sys
 from pathlib import Path
 
 
-def signal_name_to_emoji(signal_emoji_name: str) -> str:
-    r"""Return the emoji corresponding to a Signal emoji name.
-
-    Signal emoji names are concatenations of UTF‐16 code units,
-    represented in lowercase big‐endian hex padded to four digits.
-
-    >>> signal_name_to_emoji("d83dde36200dd83cdf2bfe0f")
-    '😶‍🌫️'
-    >>> b"\xd8\x3d\xde\x36\x20\x0d\xd8\x3c\xdf\x2b\xfe\x0f".decode("utf-16-be")
-    '😶‍🌫️'
-    """
-    hex_bytes = zip(signal_emoji_name[::2], signal_emoji_name[1::2])
-    emoji_utf_16_be = bytes(
-        int("".join(hex_pair), 16) for hex_pair in hex_bytes
-    )
-    return emoji_utf_16_be.decode("utf-16-be")
-
-
 def emoji_to_noto_name(emoji: str) -> str:
     r"""Return the Noto emoji name of an emoji.
 
@@ -55,21 +37,6 @@ def emoji_to_noto_name(emoji: str) -> str:
     )
 
 
-def emoji_to_emoji_data_name(emoji: str) -> str:
-    r"""Return the npm emoji-data emoji name of an emoji.
-
-    emoji-data emoji names are hyphen‐minus‐separated Unicode scalar
-    values, represented in lowercase big‐endian hex padded to at least
-    four digits.
-
-    >>> emoji_to_emoji_data_name("😶‍🌫️")
-    '1f636-200d-1f32b-fe0f'
-    >>> emoji_to_emoji_data_name("\U0001f636\u200d\U0001f32b\ufe0f")
-    '1f636-200d-1f32b-fe0f'
-    """
-    return "-".join(f"{ord(scalar_value):04x}" for scalar_value in emoji)
-
-
 def _main() -> None:
     noto_png_path, asar_root = (Path(arg) for arg in sys.argv[1:])
     asar_root = asar_root.absolute()
@@ -77,39 +44,24 @@ def _main() -> None:
     out_path = asar_root / "images" / "nixpkgs-emoji"
     out_path.mkdir(parents=True)
 
-    emoji_data_out_path = (
-        asar_root
-        / "node_modules"
-        / "emoji-datasource-apple"
-        / "img"
-        / "apple"
-        / "64"
-    )
-    emoji_data_out_path.mkdir(parents=True)
-
     jumbomoji_json_path = asar_root / "build" / "jumbomoji.json"
     with jumbomoji_json_path.open() as jumbomoji_json_file:
         jumbomoji_packs = json.load(jumbomoji_json_file)
 
     for signal_emoji_names in jumbomoji_packs.values():
         for signal_emoji_name in signal_emoji_names:
-            emoji = signal_name_to_emoji(signal_emoji_name)
 
             try:
                 shutil.copy(
-                    noto_png_path / f"emoji_u{emoji_to_noto_name(emoji)}.png",
-                    out_path / emoji,
+                    noto_png_path / f"emoji_u{emoji_to_noto_name(signal_emoji_name)}.png",
+                    out_path / signal_emoji_name,
                 )
             except FileNotFoundError:
                 print(
-                    f"Missing Noto emoji: {emoji} {signal_emoji_name}",
+                    f"Missing Noto emoji: {signal_emoji_name}",
                     file=sys.stderr,
                 )
                 continue
-
-            (
-                emoji_data_out_path / f"{emoji_to_emoji_data_name(emoji)}.png"
-            ).symlink_to(out_path / emoji)
 
     print(out_path.relative_to(asar_root))
 

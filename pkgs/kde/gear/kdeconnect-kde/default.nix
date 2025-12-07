@@ -3,9 +3,9 @@
   mkKdeDerivation,
   replaceVars,
   sshfs,
+  qtbase,
   qtconnectivity,
   qtmultimedia,
-  qtwayland,
   pkg-config,
   wayland,
   wayland-protocols,
@@ -19,12 +19,11 @@ mkKdeDerivation {
     (replaceVars ./hardcode-sshfs-path.patch {
       sshfs = lib.getExe sshfs;
     })
-
-    # Fix build with Qt 6.9
-    # FIXME: remove in next update
+    # Fix CVE-2025-66270 (https://kde.org/info/security/advisory-20251128-1.txt)
     (fetchpatch {
-      url = "https://invent.kde.org/network/kdeconnect-kde/-/commit/120a089ed8a45176289b8f1addf044817b13aa7b.patch";
-      hash = "sha256-ifos4wMFimhtksqMhhHPfHrEV5+PSXLdapgqGwQj/Hc=";
+      name = "CVE-2025-66270.patch";
+      url = "https://invent.kde.org/network/kdeconnect-kde/-/commit/4e53bcdd5d4c28bd9fefd114b807ce35d7b3373e.patch";
+      hash = "sha256-qtcXNJ5qL4xtZQ70R/wWVCzFGzXNltr6XTgs0fpkTi4=";
     })
   ];
 
@@ -38,13 +37,12 @@ mkKdeDerivation {
   extraBuildInputs = [
     qtconnectivity
     qtmultimedia
-    qtwayland
     wayland
     wayland-protocols
     libfakekey
   ];
 
   extraCmakeFlags = [
-    "-DQtWaylandScanner_EXECUTABLE=${qtwayland}/libexec/qtwaylandscanner"
+    "-DQtWaylandScanner_EXECUTABLE=${qtbase}/libexec/qtwaylandscanner"
   ];
 }

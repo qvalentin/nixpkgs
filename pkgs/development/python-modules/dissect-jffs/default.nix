@@ -4,31 +4,28 @@
   dissect-cstruct,
   dissect-util,
   fetchFromGitHub,
-  pythonOlder,
   setuptools,
   setuptools-scm,
 }:
 
 buildPythonPackage rec {
   pname = "dissect-jffs";
-  version = "1.4";
+  version = "1.6";
   pyproject = true;
-
-  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "fox-it";
     repo = "dissect.jffs";
     tag = version;
-    hash = "sha256-U8tQbCOMdudpsct72QHqKXd2QL99eqpfOJ/QHVUpcIk=";
+    hash = "sha256-yzEaOVP4QOQD24cxy+GKS0mQRvYD4GcPwYydwrzFqXs=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
     setuptools
     setuptools-scm
   ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     dissect-cstruct
     dissect-util
   ];

@@ -5,20 +5,17 @@
   httpx,
   poetry-core,
   pydantic,
-  pythonOlder,
 }:
 
 buildPythonPackage rec {
   pname = "llama-cloud";
-  version = "0.1.18";
+  version = "0.1.45";
   pyproject = true;
-
-  disabled = pythonOlder "3.8";
 
   src = fetchPypi {
     pname = "llama_cloud";
     inherit version;
-    hash = "sha256-ZcuIscsaOg5j5EOOjIouYBPf2vu0IB0nTARZ5dBPsyg=";
+    hash = "sha256-FAJEAIzFcQ4xrpfGBDlzo6mWmlGw84FV+jOoQ0B46Ko=";
   };
 
   build-system = [ poetry-core ];

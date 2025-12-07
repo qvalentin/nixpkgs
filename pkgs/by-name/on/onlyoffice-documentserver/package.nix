@@ -10,23 +10,24 @@
   liberation_ttf_v1,
   writeScript,
   xorg,
+  nixosTests,
 }:
 
 let
   # var/www/onlyoffice/documentserver/server/DocService/docservice
   onlyoffice-documentserver = stdenv.mkDerivation rec {
     pname = "onlyoffice-documentserver";
-    version = "8.3.2";
+    version = "9.1.0";
 
     src = fetchurl (
       {
         "aarch64-linux" = {
           url = "https://github.com/ONLYOFFICE/DocumentServer/releases/download/v${version}/onlyoffice-documentserver_arm64.deb";
-          sha256 = "sha256-fyxk7FiBhTRTy8f5Wx6Rp0MPX45O5Q05ZS17Krp05P0=";
+          sha256 = "sha256-QeeJe9pvwjgLrIRv2YuC5CE2EHevGfLP3c+eI6R80I0=";
         };
         "x86_64-linux" = {
           url = "https://github.com/ONLYOFFICE/DocumentServer/releases/download/v${version}/onlyoffice-documentserver_amd64.deb";
-          sha256 = "sha256-dBA/TlTwG+9eRY5QdqVw0cghnXPRNCUfs9QoaNFFLB0=";
+          sha256 = "sha256-MmUq6dV4/cDeeC0UL240U+yYcqBsi1vqB0BwPKWoDdc=";
         };
       }
       .${stdenv.hostPlatform.system} or (throw "unsupported system ${stdenv.hostPlatform.system}")
@@ -72,6 +73,7 @@ let
     dontStrip = true;
 
     passthru = {
+      tests = nixosTests.onlyoffice;
       fhs = buildFHSEnv {
         name = "onlyoffice-wrapper";
 
@@ -169,7 +171,7 @@ let
         "aarch64-linux"
       ];
       sourceProvenance = [ sourceTypes.binaryNativeCode ];
-      maintainers = with maintainers; [ SuperSandro2000 ];
+      maintainers = with maintainers; [ raboof ];
     };
   };
 in

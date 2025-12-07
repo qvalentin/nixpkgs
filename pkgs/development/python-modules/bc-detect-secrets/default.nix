@@ -13,11 +13,12 @@
   responses,
   setuptools,
   unidiff,
+  writableTmpDirAsHomeHook,
 }:
 
 buildPythonPackage rec {
   pname = "bc-detect-secrets";
-  version = "1.5.40";
+  version = "1.5.45";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -26,7 +27,7 @@ buildPythonPackage rec {
     owner = "bridgecrewio";
     repo = "detect-secrets";
     tag = version;
-    hash = "sha256-qvQqcRD4L+due3Rbxp1H+83obg85rNxYPwy/g8zvW38=";
+    hash = "sha256-/0VHhKcYcXYXosInjsgBf6eR7kcfLiLSyxFuaIqTbiQ=";
   };
 
   build-system = [ setuptools ];
@@ -47,11 +48,9 @@ buildPythonPackage rec {
     pkgs.gitMinimal
     pytestCheckHook
     responses
-  ] ++ lib.flatten (builtins.attrValues optional-dependencies);
-
-  preCheck = ''
-    export HOME=$(mktemp -d);
-  '';
+    writableTmpDirAsHomeHook
+  ]
+  ++ lib.concatAttrValues optional-dependencies;
 
   disabledTests = [
     # Tests are failing for various reasons (missing git repo, missing test data, etc.)

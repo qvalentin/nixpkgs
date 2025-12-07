@@ -11,21 +11,18 @@
   protobuf,
   pytest-asyncio,
   pytestCheckHook,
-  pythonOlder,
   setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "google-ai-generativelanguage";
-  version = "0.6.17";
+  version = "0.9.0";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     pname = "google_ai_generativelanguage";
     inherit version;
-    hash = "sha256-hDlQNQOrpshbOHFQT0kLvGa+hUAx2LtNWsldPKIXPzg=";
+    hash = "sha256-JSR0j0E5F0Rv68jgh53A1PAmoGT4nxfEK4G+p3q3bIQ=";
   };
 
   build-system = [ setuptools ];

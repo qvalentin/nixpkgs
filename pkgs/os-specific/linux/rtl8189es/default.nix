@@ -10,19 +10,20 @@
 
 stdenv.mkDerivation rec {
   name = "rtl8189es-${kernel.version}-${version}";
-  version = "2024-01-21";
+  version = "2025-09-26";
 
   src = fetchFromGitHub {
     owner = "jwrdegoede";
     repo = "rtl8189ES_linux";
-    rev = "eb51e021b0e1b6f94a4b49da3f4ee5c5fb20b715";
-    sha256 = "sha256-n7Bsstr1H1RvguAyJnVqk/JgEx8WEZWaVg7ZfEYykR0=";
+    rev = "0a5d04114fac3c9f48a343cb905fbb6a3f9f5df5";
+    hash = "sha256-cGPjA5Az0EEbPGG0KfgAqdhbLj54BxoIohWmcR10vPI=";
   };
 
   nativeBuildInputs = [
     bc
     nukeReferences
-  ] ++ kernel.moduleBuildDependencies;
+  ]
+  ++ kernel.moduleBuildDependencies;
 
   hardeningDisable = [
     "pic"

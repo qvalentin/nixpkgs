@@ -1,6 +1,7 @@
 {
   buildDunePackage,
   lib,
+  ocaml,
   fetchFromGitHub,
   which,
   ocsigen_server,
@@ -68,7 +69,7 @@ buildDunePackage rec {
     '';
 
     license = lib.licenses.lgpl21;
-
+    broken = lib.versionAtLeast ocaml.version "5.3";
     maintainers = [ lib.maintainers.gal_bolle ];
   };
 }

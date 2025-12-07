@@ -12,7 +12,7 @@ with import common/ec2.nix { inherit makeTest pkgs; };
 let
   imageCfg =
     (import ../lib/eval-config.nix {
-      inherit system;
+      system = null;
       modules = [
         ../maintainers/scripts/ec2/amazon-image.nix
         ../modules/testing/test-instrumentation.nix
@@ -33,7 +33,7 @@ let
 
           # Needed by nixos-rebuild due to the lack of network
           # access. Determined by trial and error.
-          system.extraDependencies = with pkgs; ([
+          system.extraDependencies = with pkgs; [
             # Needed for a nixos-rebuild.
             busybox
             cloud-utils
@@ -53,7 +53,9 @@ let
             apacheHttpd.doc
             apacheHttpd.man
             valgrind.doc
-          ]);
+          ];
+
+          nixpkgs.pkgs = pkgs;
         }
       ];
     }).config;
@@ -121,7 +123,7 @@ in
     inherit image;
     sshPublicKey = snakeOilPublicKey;
 
-    # ### https://nixos.org/channels/nixos-unstable nixos
+    # ### https://channels.nixos.org/nixos-unstable nixos
     userData = ''
       { pkgs, ... }:
 

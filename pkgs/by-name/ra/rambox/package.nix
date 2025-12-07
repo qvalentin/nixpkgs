@@ -7,11 +7,11 @@
 
 let
   pname = "rambox";
-  version = "2.4.1";
+  version = "2.5.2";
 
   src = fetchurl {
     url = "https://github.com/ramboxapp/download/releases/download/v${version}/Rambox-${version}-linux-x64.AppImage";
-    hash = "sha256-ndFv5rNTWyqrGGC8t1JNR+bQC0Jsit4I9p4ng7h/gcU=";
+    hash = "sha256-sx/XLrsDIt2cF4xv/J5i1ZTMf7eHsccBjPEMJ/WISmg=";
   };
 
   desktopItem = (

@@ -2,7 +2,6 @@
   lib,
   buildPythonPackage,
   fetchPypi,
-  pythonAtLeast,
   pytestCheckHook,
   cheroot,
   legacy-cgi,
@@ -15,6 +14,7 @@
 
 buildPythonPackage rec {
   version = "0.62";
+  format = "setuptools";
   pname = "web.py";
 
   src = fetchPypi {
@@ -24,7 +24,8 @@ buildPythonPackage rec {
 
   propagatedBuildInputs = [
     cheroot
-  ] ++ lib.optional (pythonAtLeast "3.13") legacy-cgi;
+    legacy-cgi
+  ];
 
   # requires multiple running databases
   doCheck = false;

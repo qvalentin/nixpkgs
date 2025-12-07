@@ -8,16 +8,16 @@
 mkKdeDerivation {
   pname = "breeze";
 
-  # Backport fixes for Qt 6.9
-  # FIXME: remove in 6.3.5 / 6.4
+  # Fix extra thicc padding on menu items
+  # FIXME: remove in next update
   patches = [
     (fetchpatch {
-      url = "https://invent.kde.org/plasma/breeze/-/commit/098ad3facb3d76fe4476424f1b7bf3c9c2c1b142.patch";
-      hash = "sha256-o9XrhYJIvygZ6nfcDKL22jxP7eaHeN3RGBixiOZh9O8=";
+      url = "https://invent.kde.org/plasma/breeze/-/commit/4a8a46aba6b9e39bfb02c7f46933079b5a50eff5.diff";
+      hash = "sha256-ZzRMMwz3OihChywzQWBNv9rPcZI+IcXNVzoRuXTWt9c=";
     })
     (fetchpatch {
-      url = "https://invent.kde.org/plasma/breeze/-/commit/e2f16562b64c63b623def44476eadc635a82c7de.patch";
-      hash = "sha256-hPbLEfD3mhPfpoDfVUolUZ4+Pip5VNj8di/0ZDj7Jzw=";
+      url = "https://invent.kde.org/plasma/breeze/-/commit/2cd5b37dad8f213aab4029b6d3b80ca7f159ea50.diff";
+      hash = "sha256-3pOJEH1H3o+U40K/mtKnruPsoA+vy+HrAa8vU5Oza6c=";
     })
   ];
 

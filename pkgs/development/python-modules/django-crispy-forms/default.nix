@@ -10,14 +10,14 @@
 
 buildPythonPackage rec {
   pname = "django-crispy-forms";
-  version = "2.3";
+  version = "2.5";
   format = "pyproject";
 
   src = fetchFromGitHub {
     owner = "django-crispy-forms";
     repo = "django-crispy-forms";
     tag = version;
-    hash = "sha256-R2s2dUsVw5p7xn4yWeFcE7au8yHWXjFgS5jjCBveg04=";
+    hash = "sha256-UZw860dOmQOAHcOPn5JO5OPe0kei4Mivy5FTh25Zo1s=";
   };
 
   propagatedBuildInputs = [
@@ -33,8 +33,11 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
-  pytestFlagsArray = [
+  pytestFlags = [
     "--ds=crispy_forms.tests.test_settings"
+  ];
+
+  enabledTestPaths = [
     "crispy_forms/tests/"
   ];
 

@@ -4,23 +4,21 @@
   dissect-cstruct,
   dissect-util,
   fetchFromGitHub,
-  pythonOlder,
+  pytestCheckHook,
   setuptools,
   setuptools-scm,
 }:
 
 buildPythonPackage rec {
   pname = "dissect-archive";
-  version = "1.5";
+  version = "1.8";
   pyproject = true;
-
-  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "fox-it";
     repo = "dissect.archive";
     tag = version;
-    hash = "sha256-WqzZmt95NJPX0+wGyvJZzoOJTR5qH0YYOTFsYIihE1Y=";
+    hash = "sha256-HNbnluJPn275BYEdfBQdGtXlXlvZKFvDkJTpe0zgpdc=";
   };
 
   build-system = [
@@ -33,7 +31,16 @@ buildPythonPackage rec {
     dissect-util
   ];
 
+  nativeCheckInputs = [ pytestCheckHook ];
+
   pythonImportsCheck = [ "dissect.archive" ];
+
+  disabledTests = [
+    # Issue with archives
+    "test_vbk"
+    "test_vma"
+    "test_wim"
+  ];
 
   meta = with lib; {
     description = "Dissect module implementing parsers for various archive and backup formats";

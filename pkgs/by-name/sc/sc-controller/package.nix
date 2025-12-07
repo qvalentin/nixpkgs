@@ -14,23 +14,26 @@
   libXfixes,
   libusb1,
   udev,
+  udevCheckHook,
   gtk-layer-shell,
 }:
 
 python3Packages.buildPythonApplication rec {
   pname = "sc-controller";
-  version = "0.5.1";
+  version = "0.5.4";
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "C0rn3j";
     repo = "sc-controller";
     tag = "v${version}";
-    hash = "sha256-2t4q0pKwt1wJIHgTr37voqY4tDoDMAoEuLpFetuENHI=";
+    hash = "sha256-7rSsRoxFCXSHSIIoBrIPPY+4/+M99Hdop8+EeryJues=";
   };
 
   nativeBuildInputs = [
     wrapGAppsHook3
     gobject-introspection
+    udevCheckHook
   ];
 
   buildInputs = [
@@ -89,6 +92,8 @@ python3Packages.buildPythonApplication rec {
     )
   '';
 
+  doInstallCheck = true;
+
   meta = {
     homepage = "https://github.com/C0rn3j/sc-controller";
     # donations: https://www.patreon.com/kozec
@@ -96,7 +101,6 @@ python3Packages.buildPythonApplication rec {
     license = lib.licenses.gpl2Only;
     platforms = lib.platforms.linux;
     maintainers = with lib.maintainers; [
-      orivej
       rnhmjoj
     ];
   };

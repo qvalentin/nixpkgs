@@ -3,31 +3,31 @@
   fetchFromGitHub,
   installShellFiles,
   lib,
+  stdenv,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "srgn";
-  version = "0.13.6";
+  version = "0.14.1";
 
   src = fetchFromGitHub {
     owner = "alexpovel";
     repo = "srgn";
     rev = "srgn-v${version}";
-    hash = "sha256-q6LFNymfCkKhmQXsJvKOya9WPchURI1SBdk64bpmsts=";
+    hash = "sha256-bwrV6wj9PrX2cYAnqB0fXiG/vuL28M0q9a+WER0A/9w=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-qS1I4+pL3K4HIXNFID/ajldxIJJJXhpi0hxivHWk9Vg=";
+  cargoHash = "sha256-9quoyNqADezMdziiaGCVIKJWBWaTgrMsfWVUw4Zlo94=";
 
   nativeBuildInputs = [ installShellFiles ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     for shell in bash zsh fish; do
       installShellCompletion --cmd srgn "--$shell" <("$out/bin/srgn" --completions "$shell")
     done
   '';
 
   meta = with lib; {
-    description = "A code surgeon for precise text and code transplantation";
+    description = "Code surgeon for precise text and code transplantation";
     license = licenses.mit;
     maintainers = with maintainers; [ magistau ];
     mainProgram = "srgn";

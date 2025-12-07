@@ -9,7 +9,7 @@
 
 buildPythonPackage rec {
   pname = "apkinspector";
-  version = "1.3.2";
+  version = "1.3.6";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -18,7 +18,7 @@ buildPythonPackage rec {
     owner = "erev0s";
     repo = "apkInspector";
     tag = "v${version}";
-    hash = "sha256-trEbm9EFZLoFBWKKOlbI305r+8GdSmU5zWPnNhb5qzQ=";
+    hash = "sha256-xL4uUHYAn4V3cxqVb+XrIiOwK9az2VlYYTcJJt+9Cus=";
   };
 
   build-system = [ poetry-core ];
@@ -30,7 +30,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Module designed to provide detailed insights into the zip structure of APK files";
     homepage = "https://github.com/erev0s/apkInspector";
-    changelog = "https://github.com/erev0s/apkInspector/releases/tag/v${version}";
+    changelog = "https://github.com/erev0s/apkInspector/releases/tag/${src.tag}";
     license = licenses.asl20;
     maintainers = with maintainers; [ fab ];
     mainProgram = "apkInspector";

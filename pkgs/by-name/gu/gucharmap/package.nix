@@ -47,7 +47,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "gucharmap";
-  version = "16.0.2";
+  version = "17.0.0";
 
   outputs = [
     "out"
@@ -61,31 +61,30 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "GNOME";
     repo = "gucharmap";
     rev = finalAttrs.version;
-    hash = "sha256-UaXgQIhAoI27iYWgZuZeO7Lv6J9pj06HPp0SZs/5abM=";
+    hash = "sha256-BYplW+gVTgWdXYW+h2g4xwxmFSl+WoygZfw8dug4qkw=";
   };
 
   strictDeps = true;
-  nativeBuildInputs =
-    [
-      meson
-      ninja
-      pkg-config
-      python3
-      wrapGAppsHook3
-      unzip
-      intltool
-      itstool
-      gtk-doc
-      docbook_xsl
-      docbook_xml_dtd_45
-      yelp-tools
-      libxml2
-      desktop-file-utils
-      gobject-introspection
-    ]
-    ++ lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
-      mesonEmulatorHook
-    ];
+  nativeBuildInputs = [
+    meson
+    ninja
+    pkg-config
+    python3
+    wrapGAppsHook3
+    unzip
+    intltool
+    itstool
+    gtk-doc
+    docbook_xsl
+    docbook_xml_dtd_45
+    yelp-tools
+    libxml2
+    desktop-file-utils
+    gobject-introspection
+  ]
+  ++ lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
+    mesonEmulatorHook
+  ];
 
   buildInputs = [
     gtk3
@@ -117,7 +116,7 @@ stdenv.mkDerivation (finalAttrs: {
     mainProgram = "gucharmap";
     homepage = "https://gitlab.gnome.org/GNOME/gucharmap";
     license = licenses.gpl3Plus;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
     platforms = platforms.linux;
   };
 })

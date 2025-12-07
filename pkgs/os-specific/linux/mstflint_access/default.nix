@@ -14,7 +14,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://github.com/Mellanox/mstflint/releases/download/v${version}/kernel-mstflint-${version}.tar.gz";
-    hash = "sha256-kQBv/67miw6lSHIcCVYy66B7OHVofFs2N+evtsQ3Ovk=";
+    hash = "sha256-VO4nXGlqp955xmNyAD/TdOfLEA2CKouOJmLnRCvjnaw=";
   };
 
   nativeBuildInputs = [ kmod ] ++ kernel.moduleBuildDependencies;
@@ -26,13 +26,14 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  installPhase = ''
-    runHook preInstall
-
-    install -D ${pname}.ko $out/lib/modules/${kernel.modDirVersion}/extra/${pname}.ko
-
-    runHook postInstall
-  '';
+  installTargets = [ "modules_install" ];
+  installFlags = [
+    "-C"
+    "${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
+    "INSTALL_MOD_PATH=${placeholder "out"}"
+    "M=$(PWD)"
+  ]
+  ++ makeFlags;
 
   meta = with lib; {
     description = "Kernel module for Nvidia NIC firmware update";

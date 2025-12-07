@@ -15,11 +15,14 @@
   glib,
   gitUpdater,
   bubblewrap,
+  xapp-symbolic-icons,
 }:
 
 let
   pythonEnv = python3.withPackages (
-    pp: with pp; [
+    pp:
+    with pp;
+    [
       grpcio-tools
       protobuf
       pygobject3
@@ -35,17 +38,18 @@ let
       ifaddr
       qrcode
     ]
+    ++ qrcode.optional-dependencies.pil
   );
 in
 stdenv.mkDerivation rec {
   pname = "warpinator";
-  version = "1.8.8";
+  version = "2.0.0";
 
   src = fetchFromGitHub {
     owner = "linuxmint";
-    repo = pname;
+    repo = "warpinator";
     rev = version;
-    hash = "sha256-aqqKCYlCAL/6srbyYRoVQlIFKpTmwYZsdfLibRyAUXg=";
+    hash = "sha256-R6ccyZLXwxvhvRCDguxufzXfVq5tzrPEtBbXgdO6AoI=";
   };
 
   nativeBuildInputs = [
@@ -86,6 +90,12 @@ stdenv.mkDerivation rec {
       --replace-fail 'GLib.find_program_in_path("bwrap")' "True"
   '';
 
+  preFixup = ''
+    gappsWrapperArgs+=(
+      --prefix XDG_DATA_DIRS : "${lib.makeSearchPath "share" [ xapp-symbolic-icons ]}"
+    )
+  '';
+
   passthru.updateScript = gitUpdater {
     ignoredVersions = "^master.*";
   };
@@ -95,6 +105,6 @@ stdenv.mkDerivation rec {
     description = "Share files across the LAN";
     license = licenses.gpl3Plus;
     platforms = platforms.linux;
-    maintainers = teams.cinnamon.members;
+    teams = [ teams.cinnamon ];
   };
 }

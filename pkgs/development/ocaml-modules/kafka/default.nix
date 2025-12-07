@@ -1,6 +1,7 @@
 {
   lib,
   fetchurl,
+  ocaml,
   buildDunePackage,
   rdkafka,
   zlib,
@@ -25,5 +26,6 @@ buildDunePackage rec {
     description = "OCaml bindings for Kafka";
     license = licenses.mit;
     maintainers = [ maintainers.vbgl ];
+    broken = lib.versionAtLeast ocaml.version "5.0";
   };
 }

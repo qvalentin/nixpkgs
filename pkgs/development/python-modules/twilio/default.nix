@@ -12,8 +12,6 @@
   pyjwt,
   pyngrok,
   pytestCheckHook,
-  pythonAtLeast,
-  pythonOlder,
   pytz,
   requests,
   setuptools,
@@ -21,16 +19,14 @@
 
 buildPythonPackage rec {
   pname = "twilio";
-  version = "9.5.2";
+  version = "9.8.8";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "twilio";
     repo = "twilio-python";
     tag = version;
-    hash = "sha256-zHy/EqoWuQ3fZuA8wqatmcg+YwQB7w+kAGTWY453PnY=";
+    hash = "sha256-q3NjNe7SiqL2HgRkuoChesD333q3vw+aVkSASc6gDQk=";
   };
 
   build-system = [ setuptools ];

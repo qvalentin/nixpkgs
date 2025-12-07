@@ -6,17 +6,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-swift";
-  version = "0.8.0";
+  version = "0.10.0";
 
   src = fetchFromGitHub {
     owner = "antoniusnaumann";
     repo = "cargo-swift";
     rev = "v${version}";
-    hash = "sha256-T8cIZJwnA3bFMIEezMrh5LRXV1SRCAVLanQm7rmc0sU=";
+    hash = "sha256-koHQaYfMDc8GxQ+K7C1YluMY5u4cUGV8/Ehjt/KWl/g=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-Zl5y2pHQIcLU5EDtmxsAv+/0n4DZ/qXwN4Prmm8Nd34=";
+  cargoHash = "sha256-8aFISZ2nzCmxxKkX77jEOE/MWcKwyTw8IGTEbJ0mKWg=";
 
   meta = with lib; {
     description = "Cargo plugin to easily build Swift packages from Rust code";

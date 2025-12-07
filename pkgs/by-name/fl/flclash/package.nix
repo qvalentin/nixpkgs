@@ -1,7 +1,7 @@
 {
   lib,
   fetchFromGitHub,
-  flutter327,
+  flutter335,
   keybinder3,
   libayatana-appindicator,
   buildGoModule,
@@ -12,14 +12,14 @@
 
 let
   pname = "flclash";
-  version = "0.8.80";
+  version = "0.8.90";
 
   src =
     (fetchFromGitHub {
       owner = "chen08209";
       repo = "FlClash";
       tag = "v${version}";
-      hash = "sha256-8zimk2G6vCzh2vhYqUBt0aWMk7xpWMwyzpzB89I7CoA=";
+      hash = "sha256-wEgWjzdP7HeWgDacaP9fYNczG9BrTN790AQ5aj9scwM=";
       fetchSubmodules = true;
     }).overrideAttrs
       (_: {
@@ -28,20 +28,20 @@ let
         GIT_CONFIG_VALUE_0 = "git@github.com:";
       });
 
-  metaCommon = {
-    description = "Multi-platform proxy client based on ClashMeta, simple and easy to use, open-source and ad-free";
+  meta = {
+    description = "Proxy client based on ClashMeta, simple and easy to use";
     homepage = "https://github.com/chen08209/FlClash";
     license = with lib.licenses; [ gpl3Plus ];
-    maintainers = with lib.maintainers; [ ];
+    maintainers = [ ];
   };
 
-  libclash = buildGoModule {
-    inherit version src;
-    pname = "libclash";
+  core = buildGoModule {
+    pname = "core";
+    inherit version src meta;
 
     modRoot = "core";
 
-    vendorHash = "sha256-muMZvmGNfb4VO11kp60VF3sGrh9ajQ51tlX+BF0AsBE=";
+    vendorHash = "sha256-5oYJMcyKh8CpMLOLch5/svwa148hY4rnSR5inTRNK4M=";
 
     env.CGO_ENABLED = 0;
 
@@ -53,14 +53,17 @@ let
 
       runHook postBuild
     '';
-
-    meta = metaCommon;
   };
 in
-flutter327.buildFlutterApplication {
+flutter335.buildFlutterApplication {
   inherit pname version src;
 
   pubspecLock = lib.importJSON ./pubspec.lock.json;
+
+  gitHashes = {
+    flutter_js = "sha256-4PgiUL7aBnWVOmz2bcSxKt81BRVMnopabj5LDbtPYk4=";
+    re_editor = "sha256-PuaXoByTmkov2Dsz0kBHBHr/o63+jgPrnY9gpK7AOhA=";
+  };
 
   nativeBuildInputs = [
     copyDesktopItems
@@ -72,6 +75,8 @@ flutter327.buildFlutterApplication {
     libayatana-appindicator
   ];
 
+  flutterBuildFlags = [ "--dart-define=APP_ENV=stable" ];
+
   desktopItems = [
     (makeDesktopItem {
       name = "flclash";
@@ -79,9 +84,7 @@ flutter327.buildFlutterApplication {
       icon = "flclash";
       genericName = "FlClash";
       desktopName = "FlClash";
-      categories = [
-        "Network"
-      ];
+      categories = [ "Network" ];
       keywords = [
         "FlClash"
         "Clash"
@@ -93,19 +96,19 @@ flutter327.buildFlutterApplication {
 
   preBuild = ''
     mkdir -p libclash/linux
-    cp ${libclash}/bin/FlClashCore libclash/linux/FlClashCore
+    cp ${core}/bin/FlClashCore libclash/linux/FlClashCore
   '';
 
   postInstall = ''
-    install -Dm644 assets/images/icon.png $out/share/pixmaps/flclash.png
+    install -D --mode=0644 assets/images/icon.png $out/share/pixmaps/flclash.png
   '';
 
   passthru = {
-    inherit libclash;
+    inherit core;
     updateScript = ./update.sh;
   };
 
-  meta = metaCommon // {
+  meta = meta // {
     mainProgram = "FlClash";
     platforms = lib.platforms.linux;
   };

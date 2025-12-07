@@ -8,7 +8,7 @@
   docbook-xsl-nons,
   dvdauthor,
   dvdplusrwtools,
-  ffmpeg,
+  ffmpeg_7,
   flex,
   fontconfig,
   gettext,
@@ -56,23 +56,22 @@ stdenv.mkDerivation rec {
     xmlto
     zip
   ];
-  buildInputs =
-    [
-      cdrtools
-      dvdauthor
-      dvdplusrwtools
-      ffmpeg
-      fontconfig
-      glib
-      libexif
-      libjpeg
-      wxSVG
-      wxGTK32
-      xine-ui
-    ]
-    ++ optionals dvdisasterSupport [ dvdisaster ]
-    ++ optionals udevSupport [ udev ]
-    ++ optionals dbusSupport [ dbus ];
+  buildInputs = [
+    cdrtools
+    dvdauthor
+    dvdplusrwtools
+    ffmpeg_7
+    fontconfig
+    glib
+    libexif
+    libjpeg
+    wxSVG
+    wxGTK32
+    xine-ui
+  ]
+  ++ optionals dvdisasterSupport [ dvdisaster ]
+  ++ optionals udevSupport [ udev ]
+  ++ optionals dbusSupport [ dbus ];
 
   enableParallelBuilding = true;
 
@@ -128,7 +127,7 @@ stdenv.mkDerivation rec {
       - customize navigation using DVD scripting
     '';
     license = licenses.gpl2Plus;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
     platforms = with platforms; linux;
     mainProgram = "dvdstyler";
   };

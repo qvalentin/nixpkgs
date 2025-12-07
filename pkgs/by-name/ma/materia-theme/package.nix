@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "nana-4";
-    repo = pname;
+    repo = "materia-theme";
     rev = "v${version}";
     sha256 = "1fsicmcni70jkl4jb3fvh7yv0v9jhb8nwjzdq8vfwn256qyk0xvl";
   };
@@ -50,6 +50,5 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/nana-4/materia-theme";
     license = licenses.gpl2Only;
     platforms = platforms.all;
-    maintainers = [ maintainers.mounium ];
   };
 }

@@ -9,11 +9,12 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "quisk";
-  version = "4.2.41";
+  version = "4.2.48";
+  pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-du6VcKn5WvLnlUrW9tKWT7MlMIZ2bpkrsO4yHC8cM6Q=";
+    hash = "sha256-5N8uogS/V5nwYhHsdsc81GgjS9NblLx3KpdoEaXtpJI=";
   };
 
   buildInputs = [
@@ -22,12 +23,18 @@ python3.pkgs.buildPythonApplication rec {
     pulseaudio
   ];
 
-  propagatedBuildInputs = with python3.pkgs; [
+  build-system = with python3.pkgs; [
+    setuptools
+  ];
+
+  dependencies = with python3.pkgs; [
     pyusb
     wxpython
   ];
 
   doCheck = false;
+
+  pythonImportsCheck = [ "quisk" ];
 
   meta = with lib; {
     description = "SDR transceiver for radios that use the Hermes protocol";

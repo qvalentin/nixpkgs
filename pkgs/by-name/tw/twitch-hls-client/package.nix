@@ -2,27 +2,20 @@
   lib,
   rustPlatform,
   fetchFromGitHub,
-  stdenv,
-  darwin,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "twitch-hls-client";
-  version = "1.3.14";
+  version = "1.6.1";
 
   src = fetchFromGitHub {
     owner = "2bc4";
     repo = "twitch-hls-client";
     rev = version;
-    hash = "sha256-g7pnTu6NHvtge7vUyG1Cms6hv4ozPgawMUKYGU7VRak=";
+    hash = "sha256-jApBFe9GeXkkNO+oODpYt+FArsU441lJhxnwzL4vwPk=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-Suq+j4/lmkEMg6VlLT8UcPcVjDyBLyjUaqPXdqDo3dU=";
-
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.Security
-  ];
+  cargoHash = "sha256-MYuDQMxUqKbgGVC/vFRcYJhjL5e8v+5zA0SYRaBlJaw=";
 
   meta = with lib; {
     description = "Minimal CLI client for watching/recording Twitch streams";

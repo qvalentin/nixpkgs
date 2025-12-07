@@ -6,21 +6,18 @@
   pydantic,
   pytest-vcr,
   pytestCheckHook,
-  pythonOlder,
   requests,
   requests-oauthlib,
 }:
 
 buildPythonPackage rec {
   pname = "garth";
-  version = "0.5.4";
+  version = "0.5.19";
   pyproject = true;
-
-  disabled = pythonOlder "3.10";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-Uv8kdEBPCO0W50zPzdFAgot6H/FURbhR8f1rWjGTJ9I=";
+    hash = "sha256-no9qxDtk6k5YXOEwFfwPJb4EylQRKOGorVIgvhwd4dY=";
   };
 
   pythonRelaxDeps = [ "requests-oauthlib" ];

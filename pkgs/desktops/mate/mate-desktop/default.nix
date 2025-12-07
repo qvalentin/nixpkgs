@@ -19,6 +19,7 @@ stdenv.mkDerivation rec {
   outputs = [
     "out"
     "dev"
+    "man"
   ];
 
   src = fetchurl {
@@ -51,6 +52,6 @@ stdenv.mkDerivation rec {
     homepage = "https://mate-desktop.org";
     license = licenses.gpl2Plus;
     platforms = platforms.linux;
-    maintainers = teams.mate.members;
+    teams = [ teams.mate ];
   };
 }

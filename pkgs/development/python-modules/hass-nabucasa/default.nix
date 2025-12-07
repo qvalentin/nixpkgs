@@ -2,28 +2,37 @@
   lib,
   acme,
   aiohttp,
+  async-timeout,
   atomicwrites-homeassistant,
   attrs,
   buildPythonPackage,
   ciso8601,
   cryptography,
   fetchFromGitHub,
+  freezegun,
+  grpcio,
+  josepy,
+  litellm,
   pycognito,
   pyjwt,
   pytest-aiohttp,
+  pytest-socket,
   pytest-timeout,
   pytestCheckHook,
   pythonOlder,
+  sentence-stream,
   setuptools,
   snitun,
   syrupy,
+  voluptuous,
   webrtc-models,
   xmltodict,
+  yarl,
 }:
 
 buildPythonPackage rec {
   pname = "hass-nabucasa";
-  version = "0.95.0";
+  version = "1.7.0";
   pyproject = true;
 
   disabled = pythonOlder "3.13";
@@ -32,28 +41,45 @@ buildPythonPackage rec {
     owner = "nabucasa";
     repo = "hass-nabucasa";
     tag = version;
-    hash = "sha256-KSGEgMgZ0fHot7hfT0sDl/4aZOsWT8CE+R5ebCqhLAA=";
+    hash = "sha256-22DCn6ITrpH4bevAvfogA1f4llwuk5vIn3rKieedVfg=";
   };
 
-  pythonRelaxDeps = [ "acme" ];
+  postPatch = ''
+    substituteInPlace pyproject.toml \
+      --replace-fail "0.0.0" "${version}"
+  '';
 
   build-system = [ setuptools ];
+
+  pythonRelaxDeps = [
+    "acme"
+    "snitun"
+  ];
 
   dependencies = [
     acme
     aiohttp
+    async-timeout
     atomicwrites-homeassistant
     attrs
     ciso8601
     cryptography
+    grpcio
+    josepy
+    litellm
     pycognito
     pyjwt
+    sentence-stream
     snitun
+    voluptuous
     webrtc-models
+    yarl
   ];
 
   nativeCheckInputs = [
+    freezegun
     pytest-aiohttp
+    pytest-socket
     pytest-timeout
     pytestCheckHook
     syrupy

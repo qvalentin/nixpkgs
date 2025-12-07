@@ -13,17 +13,18 @@
   libass,
   python3,
   testers,
+  darwinMinVersionHook,
 }:
 
 stdenv.mkDerivation rec {
   pname = "vapoursynth";
-  version = "70";
+  version = "72";
 
   src = fetchFromGitHub {
     owner = "vapoursynth";
     repo = "vapoursynth";
     rev = "R${version}";
-    hash = "sha256-jkRjFKHNTekXluSKQ33QqsGRy7LKnkmG97U5WIjI6EM=";
+    hash = "sha256-LRRz4471Rl/HwJ14zAkU/f2Acuofja8c0pGkuWihhsM=";
   };
 
   nativeBuildInputs = [
@@ -40,6 +41,9 @@ stdenv.mkDerivation rec {
         cython
       ]
     ))
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    (darwinMinVersionHook "13.3")
   ];
 
   enableParallelBuilding = true;

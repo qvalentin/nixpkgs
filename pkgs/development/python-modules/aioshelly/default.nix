@@ -2,6 +2,7 @@
   lib,
   aiohttp,
   aioresponses,
+  bleak-retry-connector,
   bluetooth-data-tools,
   buildPythonPackage,
   fetchFromGitHub,
@@ -9,33 +10,33 @@
   orjson,
   pytest-asyncio,
   pytestCheckHook,
-  pythonOlder,
   setuptools,
   yarl,
+  zeroconf,
 }:
 
 buildPythonPackage rec {
   pname = "aioshelly";
-  version = "13.4.1";
+  version = "13.22.0";
   pyproject = true;
-
-  disabled = pythonOlder "3.11";
 
   src = fetchFromGitHub {
     owner = "home-assistant-libs";
     repo = "aioshelly";
     tag = version;
-    hash = "sha256-1QefCtEjbcvH+VIIoTBbyuMbkPj7z5YtYROFpj2VtH0=";
+    hash = "sha256-SrnmEh+Re/DM3IM5rn/80D/ZqJeeWsn3kPtBJTGrYl0=";
   };
 
   build-system = [ setuptools ];
 
   dependencies = [
     aiohttp
+    bleak-retry-connector
     bluetooth-data-tools
     habluetooth
     orjson
     yarl
+    zeroconf
   ];
 
   nativeCheckInputs = [

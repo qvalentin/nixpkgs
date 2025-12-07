@@ -8,21 +8,18 @@
   protobuf,
   pytest-asyncio,
   pytestCheckHook,
-  pythonOlder,
   setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "google-cloud-websecurityscanner";
-  version = "1.17.1";
+  version = "1.18.0";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     pname = "google_cloud_websecurityscanner";
     inherit version;
-    hash = "sha256-nDjk29d1V19fUNei6lJLtmJDwfLcBSnXm4jZQV2s+vI=";
+    hash = "sha256-JjW9Rifp3BZIjAzs94trQj1RJAHLzll+tDksV/e1rag=";
   };
 
   build-system = [ setuptools ];
@@ -31,7 +28,8 @@ buildPythonPackage rec {
     google-api-core
     proto-plus
     protobuf
-  ] ++ google-api-core.optional-dependencies.grpc;
+  ]
+  ++ google-api-core.optional-dependencies.grpc;
 
   nativeCheckInputs = [
     mock

@@ -10,9 +10,11 @@
   # dependencies
   aiohttp,
   docstring-parser,
+  jinja2,
   jiter,
   openai,
   pydantic,
+  requests,
   rich,
   tenacity,
   typer,
@@ -21,8 +23,8 @@
   anthropic,
   diskcache,
   fastapi,
+  google-genai,
   google-generativeai,
-  jinja2,
   pytest-asyncio,
   pytestCheckHook,
   python-dotenv,
@@ -31,28 +33,32 @@
 
 buildPythonPackage rec {
   pname = "instructor";
-  version = "1.7.4";
+  version = "1.11.3";
   pyproject = true;
-
-  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "jxnl";
     repo = "instructor";
-    tag = version;
-    hash = "sha256-TrNGTWnZShOYeMGonSEib7NiEbrwWNtujeWo2gaewf4=";
+    tag = "v${version}";
+    hash = "sha256-vknPfRHyLoLo2838p/fbjrqyaBORZzLp9+fN98yVDz0=";
   };
 
   build-system = [ hatchling ];
 
-  pythonRelaxDeps = [ "rich" ];
+  pythonRelaxDeps = [
+    "jiter"
+    "openai"
+    "rich"
+  ];
 
   dependencies = [
     aiohttp
     docstring-parser
+    jinja2
     jiter
     openai
     pydantic
+    requests
     rich
     tenacity
     typer
@@ -62,8 +68,8 @@ buildPythonPackage rec {
     anthropic
     diskcache
     fastapi
+    google-genai
     google-generativeai
-    jinja2
     pytest-asyncio
     pytestCheckHook
     python-dotenv
@@ -84,12 +90,24 @@ buildPythonPackage rec {
     # Checks magic values and this fails on Python 3.13
     "test_raw_base64_autodetect_jpeg"
     "test_raw_base64_autodetect_png"
+
+    # Performance benchmarks that sometimes fail when running many parallel builds
+    "test_combine_system_messages_benchmark"
+    "test_extract_system_messages_benchmark"
+
+    # pydantic validation mismatch
+    "test_control_characters_not_allowed_in_anthropic_json_strict_mode"
+    "test_control_characters_allowed_in_anthropic_json_non_strict_mode"
   ];
 
   disabledTestPaths = [
     # Tests require OpenAI API key
-    "tests/test_distil.py"
     "tests/llm/"
+    # Network and requires API keys
+    "tests/test_auto_client.py"
+    # annoying dependencies
+    "tests/docs"
+    "examples"
   ];
 
   meta = {

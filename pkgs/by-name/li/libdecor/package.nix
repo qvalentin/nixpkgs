@@ -16,14 +16,14 @@
 
 stdenv.mkDerivation rec {
   pname = "libdecor";
-  version = "0.2.2";
+  version = "0.2.4";
 
   src = fetchFromGitLab {
     domain = "gitlab.freedesktop.org";
     owner = "libdecor";
     repo = "libdecor";
     rev = version;
-    hash = "sha256-mID19uHXFKJUZtQsSOXjRdz541YVjMxmSHVa+DlkPRc=";
+    hash = "sha256-l0MmNpC+449BaluynbzG5d0/v57F5rltOIBzBagkYbc=";
   };
 
   outputs = [

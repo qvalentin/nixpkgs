@@ -2,13 +2,14 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  fetchpatch,
   cmake,
   zlib,
   lz4,
   bzip2,
   zstd,
   spdlog,
-  tbb,
+  onetbb,
   openssl,
   boost,
   libpqxx,
@@ -22,7 +23,8 @@
   libpng,
   file,
   runCommand,
-  catch2,
+  curl,
+  capnproto,
   useAVX2 ? stdenv.hostPlatform.avx2Support,
 }:
 
@@ -32,19 +34,30 @@ let
     chmod -R +w $out
     cp -r ${rapidcheck.dev}/* $out
   '';
+  catch2 = catch2_3;
 in
 stdenv.mkDerivation rec {
   pname = "tiledb";
-  version = "2.27.2";
+  version = "2.28.1";
 
   src = fetchFromGitHub {
     owner = "TileDB-Inc";
     repo = "TileDB";
     tag = version;
-    hash = "sha256-zk4jkXJMh6wpuEKaCvuKUDod+F8B/6W5Lw8gwelcPEM=";
+    hash = "sha256-Cs3Lr8I/Mu02x78d7IySG0XX4u/VAjBs4p4b00XDT5k=";
   };
 
-  patches = lib.optionals stdenv.hostPlatform.isDarwin [ ./generate_embedded_data_header.patch ];
+  patches = [
+    # capnproto was updated to 1.2 in Nixpkgs, bring TileDB codebase up to speed
+    # patch only affects serialization related code, extracted from https://github.com/TileDB-Inc/TileDB/pull/5616
+    (fetchpatch {
+      url = "https://github.com/TileDB-Inc/TileDB/pull/5616.patch";
+      relative = "tiledb/sm/serialization";
+      extraPrefix = "tiledb/sm/serialization/";
+      hash = "sha256-5z/eJEHl+cnWRf1sMULodJyhmNh5KinDLlL1paMNiy4=";
+    })
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ ./generate_embedded_data_header.patch ];
 
   # libcxx (as of llvm-19) does not yet support `stop_token` and `jthread`
   # without the -fexperimental-library flag. Tiledb adds its own
@@ -61,18 +74,24 @@ stdenv.mkDerivation rec {
   cmakeFlags = [
     "-DTILEDB_WEBP=OFF"
     "-DTILEDB_WERROR=OFF"
+    "-DTILEDB_SERIALIZATION=ON"
     # https://github.com/NixOS/nixpkgs/issues/144170
     "-DCMAKE_INSTALL_INCLUDEDIR=include"
     "-DCMAKE_INSTALL_LIBDIR=lib"
-  ] ++ lib.optional (!useAVX2) "-DCOMPILER_SUPPORTS_AVX2=FALSE";
+  ]
+  ++ lib.optional (!useAVX2) "-DCOMPILER_SUPPORTS_AVX2=FALSE";
 
   nativeBuildInputs = [
-    catch2_3
+    catch2
     clang-tools
     cmake
     python3
     doxygen
-  ] ++ lib.optional stdenv.hostPlatform.isDarwin fixDarwinDylibNames;
+    # Required for serialization
+    curl
+    capnproto
+  ]
+  ++ lib.optional stdenv.hostPlatform.isDarwin fixDarwinDylibNames;
 
   buildInputs = [
     zlib
@@ -80,7 +99,7 @@ stdenv.mkDerivation rec {
     bzip2
     zstd
     spdlog
-    tbb
+    onetbb
     openssl
     boost
     libpqxx
@@ -89,9 +108,6 @@ stdenv.mkDerivation rec {
     rapidcheck'
     catch2
   ];
-
-  # fatal error: catch.hpp: No such file or directory
-  doCheck = false;
 
   nativeCheckInputs = [
     gtest
@@ -118,11 +134,11 @@ stdenv.mkDerivation rec {
   ];
 
   postInstall = lib.optionalString stdenv.hostPlatform.isDarwin ''
-    install_name_tool -add_rpath ${tbb}/lib $out/lib/libtiledb.dylib
+    install_name_tool -add_rpath ${onetbb}/lib $out/lib/libtiledb.dylib
   '';
 
   meta = {
-    description = "TileDB allows you to manage the massive dense and sparse multi-dimensional array data";
+    description = "Allows you to manage massive dense and sparse multi-dimensional array data";
     homepage = "https://github.com/TileDB-Inc/TileDB";
     license = lib.licenses.mit;
     platforms = lib.platforms.unix;

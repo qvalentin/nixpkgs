@@ -21,14 +21,14 @@
 
 buildPythonPackage rec {
   pname = "unstructured-client";
-  version = "0.32.3";
+  version = "0.42.4";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "Unstructured-IO";
     repo = "unstructured-python-client";
     tag = "v${version}";
-    hash = "sha256-bHiYV86c3ViCLix6vR55GiM8qTv64jj9tD8nF/jMUm4=";
+    hash = "sha256-gSUjv6LghlrSkwFxUqrnFeSSL5V7ryxI0IPRWkEGZ84=";
   };
 
   preBuild = ''
@@ -36,6 +36,10 @@ buildPythonPackage rec {
   '';
 
   build-system = [ poetry-core ];
+
+  pythonRelaxDeps = [
+    "pydantic"
+  ];
 
   dependencies = [
     aiofiles
@@ -58,10 +62,11 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
-  pytestFlagsArray = [
-    # see test-unit in Makefile
+  # see test-unit in Makefile
+  enabledTestPaths = [
     "_test_unstructured_client"
-    "-k"
+  ];
+  enabledTests = [
     "unit"
   ];
 

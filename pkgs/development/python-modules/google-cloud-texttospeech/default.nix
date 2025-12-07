@@ -8,21 +8,18 @@
   protobuf,
   pytest-asyncio,
   pytestCheckHook,
-  pythonOlder,
   setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "google-cloud-texttospeech";
-  version = "2.25.1";
+  version = "2.33.0";
   pyproject = true;
-
-  disabled = pythonOlder "3.8";
 
   src = fetchPypi {
     pname = "google_cloud_texttospeech";
     inherit version;
-    hash = "sha256-N918PwI/WpfbcpiXGNllMOBfricOXR3kHRBLMWp3Cvw=";
+    hash = "sha256-MRFXt0IQzEd38UiramK8LMJLP1Kn3BBsCgIjwYMLYY8=";
   };
 
   build-system = [ setuptools ];
@@ -31,7 +28,8 @@ buildPythonPackage rec {
     google-api-core
     proto-plus
     protobuf
-  ] ++ google-api-core.optional-dependencies.grpc;
+  ]
+  ++ google-api-core.optional-dependencies.grpc;
 
   nativeCheckInputs = [
     mock

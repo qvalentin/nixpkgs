@@ -2,7 +2,6 @@
   lib,
   stdenv,
   fetchurl,
-  fetchpatch,
   rdma-core,
   openssl,
   zlib,
@@ -29,20 +28,12 @@ stdenv.mkDerivation rec {
   pname = "mstflint";
 
   # if you update the version of this package, also update the input hash in mstflint_access!
-  version = "4.31.0-1";
+  version = "4.34.0-1";
 
   src = fetchurl {
     url = "https://github.com/Mellanox/mstflint/releases/download/v${version}/mstflint-${version}.tar.gz";
-    hash = "sha256-wBUkFOdYChiSXHcH6+LLZZ06Hte4ABWjW+pNcjtk+Oc=";
+    hash = "sha256-MOFfbrjwnWXVskFCF2pgjf1Z8nkZV0l+CLfGWzxmmIg=";
   };
-
-  patches = [
-    # fixes build errors due to missing declarations in headers
-    (fetchpatch {
-      url = "https://patch-diff.githubusercontent.com/raw/Mellanox/mstflint/pull/1131.patch";
-      sha256 = "sha256-tn8EO9HkDrMroV6byUPgjclBIK8tq4xGyi4Kx/rIj+w=";
-    })
-  ];
 
   nativeBuildInputs = [
     autoconf
@@ -53,20 +44,19 @@ stdenv.mkDerivation rec {
     git
   ];
 
-  buildInputs =
-    [
-      rdma-core
-      zlib
-      libxml2
-      openssl
-    ]
-    ++ lib.optionals (!onlyFirmwareUpdater) [
-      boost
-      curl
-      expat
-      xz
-      python3
-    ];
+  buildInputs = [
+    rdma-core
+    zlib
+    libxml2
+    openssl
+  ]
+  ++ lib.optionals (!onlyFirmwareUpdater) [
+    boost
+    curl
+    expat
+    xz
+    python3
+  ];
 
   preConfigure = ''
     export CPPFLAGS="-I$(pwd)/tools_layouts -isystem ${libxml2.dev}/include/libxml2"
@@ -108,22 +98,21 @@ stdenv.mkDerivation rec {
     '')
   ];
 
-  configureFlags =
-    [
-      "--enable-xml2"
-      "--datarootdir=${placeholder "out"}/share"
-    ]
-    ++ lib.optionals (!onlyFirmwareUpdater) [
-      "--enable-adb-generic-tools"
-      "--enable-cs"
-      "--enable-dc"
-      "--enable-fw-mgr"
-      "--enable-inband"
-      "--enable-rdmem"
-    ]
-    ++ lib.optionals enableDPA [
-      "--enable-dpa"
-    ];
+  configureFlags = [
+    "--enable-xml2"
+    "--datarootdir=${placeholder "out"}/share"
+  ]
+  ++ lib.optionals (!onlyFirmwareUpdater) [
+    "--enable-adb-generic-tools"
+    "--enable-cs"
+    "--enable-dc"
+    "--enable-fw-mgr"
+    "--enable-inband"
+    "--enable-rdmem"
+  ]
+  ++ lib.optionals enableDPA [
+    "--enable-dpa"
+  ];
 
   enableParallelBuilding = true;
 
